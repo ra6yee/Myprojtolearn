@@ -1,0 +1,77 @@
+Для вывода данных на экран мы использовали System.out. Для ввода данных будем использовать  System.in.
+ Но у System.in есть минус – он позволяет считать с клавиатуры только коды символов.
+  Чтобы обойти эту проблему и считывать большие порции данных за один раз,
+   мы будем использовать более сложную конструкцию:
+
+   Пример 1
+   Ввод строки и числа с клавиатуры:
+
+   InputStream inputStream = System.in;
+   Reader inputStreamReader = new InputStreamReader(inputStream);
+   BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+
+   String name = bufferedReader.readLine(); //читаем строку с клавиатуры
+   String sAge = bufferedReader.readLine(); //читаем строку с клавиатуры
+   int nAge = Integer.parseInt(sAge); //преобразовываем строку в число.
+
+   — Чтобы считать строку с клавиатуры, удобнее всего воспользоваться объектом BufferedReader.
+   Но для этого в него нужно передать объект, из которого он будет вычитывать данные – System.in.
+      Но System.in и BufferedReader не совместимы друг с другом, поэтому мы используем переходник –
+      еще один объект InputStreamReader.
+
+   BufferedReader reader = new BufferedReader(new InputStreamReader(System.in)); основная конструкция для ввода
+
+   String name = reader.readLine();
+   String sAge = reader.readLine();
+   int nAge = Integer.parseInt(sAge);
+
+
+   BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+
+   System.in - это переменная класса System привязанная к консоли, которая может читать с клавиатуры байты по одному,
+   нормально работать можно только через цикл или нужно написать кучу одинаковых команд, чтобы хотя бы прочитать строку.
+
+   InputStreamReader - это "переходник" между чтением байтов и символов, между InputStream и Reader.
+    Он преобразует байты из System.in в символы, но также читает символы по одному.
+
+   BufferedReader - это класс буфер, ускоряет работу программы и с ним можно адекватно работать без цикла.
+    Он складывает в свой буффер символы(переменные типа char) из InputStreamReader,
+     а потом склеивает их и возвращает вам одну строку с помощью метода readLine();
+
+
+     Потоки делятся на два вида:
+     Входящий поток (Input) — используется для приема данных
+     Исходящий поток (Output) — для отправки данных.
+     Входящий поток данных в Java реализован в классе InputStream, исходящий — в классе OutputStream.
+
+     Человек (за редкими исключениями!) не умеет читать байты.
+     Тут-то нам на помощь и приходит следующий класс — InputStreamReader!
+
+     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+
+     Мы передаем поток System.in объекту InputStreamReader.
+
+     В общем-то, если перевести его название на русский, все выглядит очевидно — “считыватель входящих потоков”.
+
+     Собственно, именно для этого он и нужен! Мы создаем объект класса InputStreamReader и передаем ему входящий поток,
+     из которого он должен считывать данные. В данном случае...new InputStreamReader(System.in)
+
+     ...мы говорим ему: “ты будешь считывать данные из системного входящего потока (с клавиатуры)”.
+
+     Но это не единственная его функция!
+
+     InputStreamReader не только получает данные из потока. Он еще и преобразует байтовые потоки в символьные.
+      Иными словами, тебе уже не нужно самому заботиться о переводе считанных данных
+      с “компьютерного” языка на “человеческий” — InputStreamReader сделает все за тебя.
+
+     InputStreamReader, конечно, может читать данные не только из консоли, но и из других мест. Например, из файла:
+
+     import java.io.FileInputStream;
+     import java.io.IOException;
+     import java.io.InputStreamReader;
+
+     public class Main {
+
+        public static void main(String[] args) throws IOException {
+            InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream("C:\\Users\\username\\Desktop\\testFile.txt"));
+        }

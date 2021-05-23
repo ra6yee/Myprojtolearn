@@ -1,0 +1,153 @@
+ ctrl + alt + t сокращение для оборачивания кода
+
+
+ Исключения – это специальный механизм для контроля над ошибками в программе. исключения необходимо обрабатывать
+ или пробрасывать выше. Примеры ошибок, которые могут возникнуть в программе:
+
+  1. Программа пытается записать файл на заполненный диск.
+
+  2. Программа пытается вызвать метод у переменной, которая хранит ссылку – null.
+
+  3. Программа пытается разделить число на 0.
+
+ Все эти действия приводят к возникновению ошибки.
+ Обычно это приводит к закрытию программы — продолжать выполнять дальше код не имеет смысла.
+ Когда возникает ошибка, Java-машина создаёт специальный объект – exception – исключение,
+ в который записывается вся информация об ошибке. Для разных ошибок есть разные исключения.
+ Затем это «исключение» приводит к тому, что программа тут же выходит из текущей функции,
+ затем выходит из следующей функции, и так пока не выйдет из метода main.
+ Затем программа завершается. Еще говорят, что Java-машина «раскручивает назад стек вызовов».
+
+ есть способ перехватить исключение. В нужном месте, для нужных нам исключений мы можем написать специальный код,
+ который будет перехватывать эти исключения и что-то делать.
+
+ Для этого есть специальная конструкция try-catch:
+
+ public class ExceptionExample2
+ {
+     public static void main(String[] args)
+     {
+         System.out.println("Program starts");
+
+         try
+         {
+             System.out.println("Before method1 calling");
+             method1();
+             System.out.println("After method1 calling. Never will be shown");  это уже не отработает
+         }
+         catch (Exception e)
+         {
+            System.out.println("Exception has been caught");
+         }
+
+         System.out.println("Program is still running");
+     }
+
+     public static void method1()
+     {
+         int a = 100;
+         int b = 0;
+         System.out.println(a / b);
+     }
+ }
+
+Вот что будет выведено на экран:
+«Program starts»
+«Before method1 calling»
+«Exception has been caught»
+«Program is still running»
+
+— А почему не будет выведено «After method1 calling. Never will be shown»?
+
+— Рада, что ты спросил. В строчке 25 у нас было деление на ноль. Это привело к возникновению ошибки – исключения.
+Java-машина создала объект ArithmeticException с информацией об ошибке. Этот объект является исключением.
+
+— Внутри метода method1 возникло исключение. И это привело к немедленному завершению этого метода.
+Оно привело бы и к завершению метода main, если бы не было блока try-catch.
+
+— Если внутри блока try возникает исключение то, оно захватывается в блоке catch.
+Остаток кода в блоке try, не будет исполнен, а сразу начнётся исполнение блока catch.
+
+— Блок try может содержать несколько блоков catch, каждый из которых будет захватывать исключения своего типа.
+
+public class ExceptionExample2
+{
+    public static void main(String[] args)
+    {
+        System.out.println("Program starts");
+
+        try
+        {
+            System.out.println("Before method1 calling");
+            method1();
+            System.out.println("After method1 calling. Never will be shown ");
+        }
+        catch (NullPointerException e)
+        {
+           System.out.println("Reference is null. Exception has been caught");
+        }
+        catch (ArithmeticException e)
+        {
+            System.out.println("Division by zero. Exception has been caught");
+        }
+        catch (Exception e)
+        {
+            System.out.println("Any other errors. Exception has been caught");
+        }
+
+        System.out.println("Program is still running");
+    }
+
+    public static void method1()
+    {
+        int a = 100;
+        int b = 0;
+        System.out.println(a / b);
+    }
+}
+
+ Java все исключения делятся на два типа – контролируемые/проверяемые (checked) и
+  неконтролируемые/непроверяемые (unchecked): те, которые перехватывать обязательно, и те
+  которые перехватывать не обязательно. По умолчанию – все исключения обязательно нужно перехватывать.
+
+— А можно в коде специально выбрасывать исключения?
+
+— В своем коде ты сам можешь выкидывать исключения. Ты даже можешь написать свои собственные исключения.
+Но это мы разберем позже. Это делается вот так:  throw new RuntimeException(s); как пример
+Примеры
+public static void method1() throws ClassNotFoundException, FileNotFoundException
+public static void main() throws IOException
+public static void main() //не выбрасывает никаких исключений
+
+
+Обратите внимание на то что :
+Exception1 наследуется от Exception
+A Exception2 от Exception1
+в свою очередь Exception3 от Exception2
+Так вот  чтобы  сработал catch на Exception3  его необходимо  поставить первым.
+за ним catch на Exception2 ( ни в коем случае не перед ним иначе Exception3 ни разу не сработает )
+catch (Exception1 e) должен стоять последним.
+ Если же catch (Exception1 e) будет стоять первым  то Все ошибки будут  перехватываться  им!
+ class Exception1 extends Exception {
+ }
+
+ class Exception2 extends Exception1 {
+ }
+
+ class Exception3 extends Exception2 {
+ }
+
+  try {
+                 method1();
+             } catch (Exception3 exception3) {
+                 exception3.printStackTrace();
+             }catch (Exception2 exception2) {
+                 exception2.printStackTrace();
+             }catch (Exception1 exception1) {
+                 exception1.printStackTrace();
+             }
+
+Если ты захватил исключение MyException, которое не хотел захватывать, его можно пробросить дальше кодом вида:
+catch (MyException e) {
+ throw e;
+}

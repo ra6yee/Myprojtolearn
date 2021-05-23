@@ -1,0 +1,40 @@
+Вызов оригинального метода
+Иногда тебе хочется не заменить унаследованный метод на свой при переопределении метода, а лишь немного дополнить его.
+
+В этом случае очень хочется исполнить в новом методе свой код и вызвать этот же метод, но базового класса.
+И такая возможность в Java есть. Делается это так: super.method().
+
+Примеры:
+
+Код	Описание
+class Cow {
+  public void printAll() {
+    printColor();
+    printName();
+  }
+
+  public void printColor() {
+    System.out.println("Я – белый");
+  }
+
+  public void printName() {
+    System.out.println("Я – корова");
+  }
+}
+
+class Whale extends Cow {
+  public void printName() {
+    System.out.print("Это неправда: ");
+    super.printName();
+
+    System.out.println("Я – кит");
+  }
+}
+public static void main(String[] args){
+  Whale whale = new Whale();
+  whale.printAll();
+}
+На экран будет выведена надпись
+Я – белый
+Это неправда: Я – корова
+Я – кит

@@ -1,0 +1,38 @@
+tringBuilder – это аналог класса String, только изменяемый.
+
+— А еще я помню, что компилятор сам генерирует код с использованием StringBuilder, когда мы просто складываем строки.
+
+— Да, ты прав. Какая у тебя отличная память. Впрочем, как и у всех роботов. Все время забываю об этом.
+
+Давай же разберемся, что можно делать с помощью класса StringBuilder:
+
+1) У меня есть обычная строка, я хочу сделать ее изменяемой. Как мне это сделать?
+
+String s = "Bender";
+StringBuilder s2 = new StringBuilder(s);
+2) Я хочу добавить символ к текущей «изменяемой строке»?
+
+String s = "Bender";
+StringBuilder s2 = new StringBuilder(s);
+s2.append("!");
+3) А как преобразовать StringBuilder обратно в строку?
+
+String s = "Bender";
+StringBuilder s2 = new StringBuilder(s);
+s2.append("!");
+s = s2.toString();
+4) А если мне нужно удалить символ?
+
+String s = "Bender";
+StringBuilder s2 = new StringBuilder(s);
+s2.deleteCharAt(2); //останется "Beder"
+5) Я хочу заменить часть строки на другую?
+
+String s = "Bender";
+StringBuilder s2 = new StringBuilder(s);
+s2.replace (3, 5, "_DE_"); //будет "Ben_DE_r"
+6) Мне нужно развернуть строку задом наперед?
+
+String s = "Bender";
+StringBuilder s2 = new StringBuilder(s);
+s2.reverse(); //будет "redneB";

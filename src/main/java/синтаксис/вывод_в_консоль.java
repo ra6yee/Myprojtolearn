@@ -6,5 +6,6 @@ public class вывод_в_консоль {
         System.out.println("Привет");// вывод с новой строки с переносом
         System.out.print("Пока ");// вывод   в текущей строке
         System.out.print("Прощай");
+        // сокращение sout
     }
 }
