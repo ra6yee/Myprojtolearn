@@ -1,0 +1,116 @@
+Тут все довольно просто на самом деле. Представь себе цепочку наследования класса:
+класс, его родитель, родитель родителя и т.д. до самого класса Object.
+Т.к. класс содержит все методы класса, от которого он был унаследован,
+то объект этого класса можно сохранить в переменную любого из его типов родителей.
+
+class Animal
+{
+  public void doAnimalActions(){}
+}
+class Cat extends Animal
+{
+  public void doCatActions(){}
+}
+class Tiger extends Cat
+{
+  public void doTigerActions(){}
+}
+public static void main(String[] args)
+{
+  Tiger tiger = new Tiger();
+  Cat cat = new Tiger();
+  Animal animal = new Tiger();
+  Object obj = new Tiger();
+}
+Если в результате присваивания мы двигаемся по цепочке наследования вверх (к типу Object),
+то это — расширение типа (оно же — восходящее преобразование или upcasting),
+а если вниз, к типу объекта, то это — сужение типа (оно же — нисходящее преобразование или downcasting).
+
+Движение вверх по цепочке наследования называется расширением, поскольку оно приводит к более общему типу.
+ Но при этом теряется возможность вызвать методы, которые были добавлены в класс при наследовании.
+
+ При сужении типа, нужно использовать оператор преобразования типа, то есть мы выполняем явное преобразование.
+ При этом Java-машина выполняет проверку, а действительно ли данный объект унаследован от Типа,
+  к которому мы хотим его преобразовать.
+
+ Такое небольшое нововведение уменьшило количество ошибок в преобразовании типов в разы
+  и существенно повысило стабильность работы Java-программ.
+
+public static void main(String[] args)
+{
+  Object obj = new Tiger();
+  Animal animal = (Animal) obj;
+  Cat cat = (Cat) obj;
+  Tiger tiger = (Tiger) animal;
+  Tiger tiger2 = (Tiger) cat;
+}
+
+Еще лучше – использовать проверку instanceof
+
+public static void main(String[] args)
+{
+  Object obj = new Tiger();
+  if (obj instanceof Cat)
+  {
+    Cat cat = (Cat) obj;
+    cat.doCatActions();
+  }
+}
+
+И вот почему.
+Мы (наш код) не всегда знаем, с объектом какого типа мы работаем.
+Это может быть как объект того же типа, что и переменная (Animal), так и любой тип-наследник (Cat, Tiger).
+
+Рассмотрим метод doAllAction. Он корректно работает в независимости от того, объект какого типа в него передали.
+
+Т.е. он корректно работает для всех трех типов Animal, Cat, Tiger.
+
+
+public static void main(String[] args)
+{
+  Animal animal = new Tiger();
+  doAllAction(animal);
+
+  Animal animal2 = new Cat();
+  doAllAction(animal2);
+
+  Animal animal3 = new Animal();
+  doAllAction(animal3);
+}
+
+public static void doAllAction(Animal animal)
+{
+  if (animal instanceof Tiger)
+  {
+    Tiger tiger = (Tiger) animal;
+    tiger.doTigerActions();
+  }
+
+  if (animal instanceof Cat)
+  {
+    Cat cat = (Cat) animal;
+    cat.doCatActions();
+  }
+
+  animal.doAnimalActions();
+}
+Тут мы видим три присваивания. Все они являются примерами расширения типа.
+Оператор преобразования типа тут не нужен, так как не нужна проверка.
+Ссылку на объект всегда можно сохранить в переменную любого его базового типа.
+
+public static void main(String[] args)
+{
+  Cat cat = new Tiger();
+  Animal animal = cat;
+  Object obj = cat;
+}
+
+С объектом при таком присваивании ничего не происходит!
+ Меняется только количество методов которое можно вызвать с помощью конкретной переменной-ссылки.
+
+Например, переменная класса Cat позволяет вызывать методы doAnimalActions & doCatActions
+ и ничего не знает о методе doTigerActions даже если ссылается на объект класса Tiger.
+
+
+
+

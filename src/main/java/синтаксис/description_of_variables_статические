@@ -200,3 +200,12 @@ int catCount = Cat.getAllCatsCount(null);
 — А почему, по-твоему, метод main объявлен статическим?
  Чтобы его можно было вызвать сразу после загрузки класса в память.
  Еще до того, когда можно будет создавать какие-то объекты.
+
+ public static class Constants {
+        public static String WANT_STRING = "Я хочу ездить на ";
+        public static String LUXURIOUS_CAR = "роскошной машине";
+        public static String CHEAP_CAR = "дешевой машине";
+        public static String FERRARI_NAME = "Феррари";
+        public static String LANOS_NAME = "Ланосе";
+    }
+

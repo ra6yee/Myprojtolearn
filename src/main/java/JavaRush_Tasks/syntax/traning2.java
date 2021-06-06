@@ -482,6 +482,20 @@ class Solution51 {
         System.out.println(d);
     }
 }
+/*
+Задача №2 на преобразование целых типов
+*/
+
+class Solution52 {
+    public static void main(String[] args) {
+        int a = 15;
+        int b = 4;
+        float c = a / b;
+        double d = a * 1e-3 + c;
+
+        System.out.println(d);
+    }
+}
 
 
 

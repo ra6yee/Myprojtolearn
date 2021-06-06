@@ -51,3 +51,18 @@ public class String_Total {
 
     }
 }
+// подстрока
+class Solution103 {
+    public static void main(String[] args) {
+        String s = "Я не хочу изучать Java, я хочу большую зарплату";
+String subS=s.substring(1);
+            System.out.println(subS);
+        for (int i = 0; i < 40; i++) {
+            System.out.println(s.substring(i));
+
+        }
+        // repeat(40, () -> System.out.println(s));
+
+    }
+}
+// узнать что строка пустая, например, при вводе, поможет булен isEmpty

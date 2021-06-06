@@ -1,0 +1,156 @@
+ Поток – это очень простая сущность. И его простота есть залог очень мощного механизма обмена данными.
+  Потоки бывают двух видов: поток для чтения и поток для записи.
+
+В поток для записи, как ты уже, наверное, догадался, можно записывать данные. Для этого у него есть метод write().
+Из потока для чтения можно данные читать. Для этого у него есть метод read().
+
+InputStream – это интерфейс потока чтения, описывающий такую способность: «из меня можно читать байты».
+
+А OutputStream– это, соответственно, интерфейс потока записи, описывающий способность: «в меня можно записывать байты».
+
+InputStream — это абстрактный класс, который отвечает за байтовый ввод.
+В Java есть серия классов, наследующих InputStream. Каждый из них настроен таким образом, чтобы получать данные из разных источников.
+
+Поскольку InputStream является родителем, он предоставляет несколько методов для удобной работы с потоками данных.
+Эти методы есть у каждого потомка InputStream:
+int available() возвращает число байт, доступных для чтения;
+close() закрывает источник ввода;
+int read() возвращает целочисленное представление следующего доступного байта в потоке.
+Если достигнут конец потока, будет возвращено число -1;
+int read(byte[] buffer) пытается читать байты в буфер, возвращая количество прочитанных байтов.
+Когда он достигает конца файла, возвращает значение -1;
+int read(byte[] buffer, int byteOffset, int byteCount) считывает часть блока байт.
+Используется, когда есть вероятность, что блок данных был заполнен не целиком. Когда он достигает конца файла, возвращает -1;
+long skip(long byteCount) пропускает byteCount, байт ввода, возвращая количество проигнорированных байтов.
+
+
+Классов-наследников на самом деле больше десятка. Для примера приведем несколько:
+
+FileInputStream: самый распространенный вид InputStream. Используется для чтения информации из файла;
+StringBufferInputStream: еще один полезный вид InputStream. Он превращает строку во входной поток данных InputStream;
+BufferedInputStream: буферизированный входной поток. Чаще всего он используется для повышения эффективности.
+
+Помнишь, мы проходили BufferedReader и говорили, что его можно не использовать?
+
+Когда мы пишем:
+
+BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))
+
+…использовать BufferedReader не обязательно: InputStreamReader справится с задачей.
+ Но BufferedReader делает это эффективнее и, к тому же, умеет читать данные целыми строками, а не отдельными символами.
+
+С BufferedInputStream все так же!
+Класс накапливает вводимые данные в специальном буфере без постоянного обращения к устройству ввода.
+
+Рассмотрим пример:
+
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.InputStream;
+
+public class BufferedInputExample {
+
+   public static void main(String[] args) throws Exception {
+       InputStream inputStream = null;
+       BufferedInputStream buffer = null;
+
+       try {
+
+           inputStream = new FileInputStream("D:/Users/UserName/someFile.txt");
+
+           buffer = new BufferedInputStream(inputStream);
+
+           while(buffer.available()>0) {
+
+               char c = (char)buffer.read();
+
+               System.out.println("Был прочитан символ " + c);
+           }
+       } catch(Exception e) {
+
+           e.printStackTrace();
+
+       } finally {
+
+           inputStream.close();
+           buffer.close();
+       }
+   }
+}
+
+В этом примере мы читаем данные из файла, который находится на компьютере по адресу «D:/Users/UserName/someFile.txt».
+ Создаем 2 объекта — FileInputStream и BufferedInputStream в качестве его «обертки».
+ После этого мы считываем байты из файла и преобразуем их в символы. И так до тех пор, пока файл не закончится.
+
+Как видишь, ничего сложного здесь нет.
+Ты можешь скопировать этот код и запустить его на каком-то настоящем файле, который хранится на твоем компьютере :)
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                                OutputStream
+Класс OutputStream — это абстрактный класс, определяющий потоковый байтовый вывод.
+
+Как ты уже понял, это — антипод InputStream’a. Он отвечает не за то, откуда считывать данные, а за то, куда их отправить.
+
+Как и InputStream, этот абстрактный класс предоставляет всем потомкам группу методов для удобной работы:
+
+int close() закрывает выходной поток;
+void flush() очищает все буферы вывода;
+abstract void write (int oneByte) записывает 1 байт в выходной поток;
+void write (byte[] buffer) записывает массив байтов в выходной поток;
+void write (byte[] buffer, int offset, int count) записывает диапазон из count байт из массива, начиная с позиции offset.
+
+Вот некоторые из потомков класса OutputStream:
+
+DataOutputStream. Выходной поток, включающий методы для записи стандартных типов данных Java.
+
+Очень простой класс для записи примитивных типов Java и строк. Наверняка ты поймешь написанный код даже без объяснений:
+
+import java.io.*;
+
+public class DataOutputStreamExample {
+
+   public static void main(String[] args) throws IOException {
+
+       DataOutputStream dos = new DataOutputStream(new FileOutputStream("testFile.txt"));
+
+       dos.writeUTF("SomeString");
+       dos.writeInt(22);
+       dos.writeDouble(1.21323);
+       dos.writeBoolean(true);
+
+   }
+}
+У него есть отдельные методы для каждого типа — writeDouble(), writeLong(), writeShort() и так далее.
+
+Класс FileOutputStream. Реализует механизм отправки данных в файл на диске.
+Мы, кстати, уже использовали его в прошлом примере, обратил внимание?
+Мы передали его внутрь DataOutputStream, который выступал в роли «обертки».
+
+BufferedOutputStream. Буферизованный выходной поток.
+Тоже ничего сложного, суть та же, что и у BufferedInputStream (или у BufferedReader’a).
+Вместо обычной последовательной записи данных используется запись через специальный «накопительный» буфер.
+Благодаря буферу можно сократить количество обращений к месту назначения данных и за счет этого повысить эффективность.
+
+import java.io.*;
+
+public class DataOutputStreamExample {
+
+   public static void main(String[] args) throws IOException {
+
+       FileOutputStream outputStream = new FileOutputStream("D:/Users/Username/someFile.txt");
+       BufferedOutputStream bufferedStream = new BufferedOutputStream(outputStream);
+
+       String text = "I love Java!"; // эту строку мы преобразуем в массив байтов и запишем в файл
+
+       byte[] buffer = text.getBytes();
+
+       bufferedStream.write(buffer, 0, buffer.length);
+       bufferedStream.close();
+   }
+}
+Опять же, ты можешь самостоятельно «поиграть» с этим кодом и проверить, как он будет работать на реальных файлах твоего компьютера.
+
+
+
+

@@ -1,0 +1,17 @@
+  FileReader fr=new FileReader("c:\\тест.txt");
+    int count=0;
+    while(fr.ready()){
+        System.out.print(((char)fr.read()));
+    }
+   fr.close();
+    }
+}
+и русский текст тоже присутствует
+  FileReader fr=new FileReader("c:\\тест.txt");
+    int count=0;
+    while(fr.ready()){
+        System.out.print(((char)fr.read()));
+    }
+   fr.close();
+    }
+}
