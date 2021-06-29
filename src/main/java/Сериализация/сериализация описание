@@ -1,0 +1,37 @@
+Это сохранение объекта в файл на диске. Десериализация это восстановление, считывание объекта из файла.Все достаточно
+просто.
+— Молодец, Амиго. Приятно слышать, что ты замечаешь такие мелочи. А ты бы смог дописать код, чтобы было сохранение в
+ файл и чтение из файла?
+
+— А что там писать?! Объявил FileInputStream и FileOutputStream и передавай их в методы save & load. Тут уже ничего не
+ перепутаешь — все просто.
+
+— Рада за тебя. Итак, новая тема – сериализация.
+
+Сериализация – это практически то же самое, что мы с тобой только что делали, только гораздо круче и встроено прямо в
+ Java-машину. Java-машина умеет сохранять и загружать свои объекты. Для этого ей даже не требуются методы save & load:
+ все объекты хранятся внутри Java-машины, и она имеет к ним полный доступ.
+
+Мы просто берем объект и сохраняем его в поток/читаем из потока:
+
+public static void main(String[] args) throws Exception
+{
+ Cat cat = new Cat();
+
+ //save cat to file
+ FileOutputStream fileOutput = new FileOutputStream("cat.dat");
+ ObjectOutputStream outputStream = new ObjectOutputStream(fileOutput);
+ outputStream.writeObject(cat);
+ fileOutput.close();
+ outputStream.close();
+
+ //load cat from file
+ FileInputStream fiStream = new FileInputStream("cat.dat");
+ ObjectInputStream objectStream = new ObjectInputStream(fiStream);
+ Object object = objectStream.readObject();
+ fiStream.close();
+ objectStream.close();
+
+ Cat newCat = (Cat)object;
+}
+

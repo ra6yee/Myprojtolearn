@@ -111,3 +111,35 @@ float fll=3.14f;
 /*
 
  */
+/*
+Значения по умолчанию
+*/
+
+class Solution122 {
+
+    int intVar;
+    double doubleVar;
+    Double DoubleVar;
+    boolean booleanVar;
+    Object ObjectVar;
+    Exception ExceptionVar;
+    String StringVar;
+
+    @Override
+    public String toString() {
+        return
+                "intVar=" + intVar +"\n"+
+                "doubleVar=" + doubleVar +"\n"+
+                "DoubleVar=" + DoubleVar +"\n"+
+                "booleanVar=" + booleanVar +"\n"+
+                "ObjectVar=" + ObjectVar +"\n"+
+                "ExceptionVar=" + ExceptionVar +"\n"+
+                "StringVar='" + StringVar +"\n"
+                ;
+    }
+
+    public static void main(String[] args) {
+       Solution122 sol=new Solution122();
+        System.out.println(sol.toString());
+    }
+}

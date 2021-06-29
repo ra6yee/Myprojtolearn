@@ -4,9 +4,7 @@ import com.sun.xml.internal.ws.api.model.wsdl.WSDLOutput;
 import sun.corba.Bridge;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import static jdk.nashorn.internal.objects.Global.println;
 
@@ -1880,6 +1878,61 @@ class Solution49 {
 //        }
     }
 }
+/*
+Разные методы для разных типов
+*/
+
+ class Solution51 {
+    public static void main(String[] args) throws IOException {
+       BufferedReader reader=new BufferedReader(new InputStreamReader(System.in));
+    String text;
+        int aa=0;
+       while(!(text=reader.readLine()).equals("exit")){
+           if(text.contains(".")){
+               double a=Double.parseDouble(text);
+               print(a);
+
+           }else {
+
+               try {
+                   aa = Integer.parseInt(text);
+                   {
+                       if (aa > 0 && aa < 128 ) {
+                           print((short) aa);
+                       }else {
+                           if (aa <= 0 || aa >= 128) {
+                               print((int) aa);
+                           }
+                       }
+
+                   }
+
+               }
+               catch (NumberFormatException e) {
+                   print((String) text);
+               }
+
+           }
+           }
+    }
+
+    public static void print(Double value) {
+        System.out.println("Это тип Double, значение " + value);
+    }
+
+    public static void print(String value) {
+        System.out.println("Это тип String, значение " + value);
+    }
+
+    public static void print(short value) {
+        System.out.println("Это тип short, значение " + value);
+    }
+
+    public static void print(Integer value) {
+        System.out.println("Это тип Integer, значение " + value);
+    }
+}
+
 
 
 

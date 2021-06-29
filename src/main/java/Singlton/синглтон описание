@@ -1,0 +1,69 @@
+Это такой класс у которого может быть только один экземпляр.
+Одиночка — это порождающий паттерн, который гарантирует существование только одного объекта определённого класса,
+а также позволяет достучаться до этого объекта из любого места программы.
+
+Применимость: Многие программисты считают Одиночку антипаттерном, поэтому его всё реже и реже можно встретить в Java-коде.
+
+Тем не менее, Одиночке нашлось применение в стандартных библиотеках Java:
+
+java.lang.Runtime#getRuntime()
+
+java.awt.Desktop#getDesktop()
+
+java.lang.System#getSecurityManager()
+
+Признаки применения паттерна: Одиночку можно определить по статическому создающему методу, который возвращает один
+ и тот же объект.
+
+ Singleton.java: Одиночка
+
+
+public final class Singleton {
+    private static Singleton instance;
+    public String value;
+
+    private Singleton(String value) {
+        // Этот код эмулирует медленную инициализацию.
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
+        }
+        this.value = value;
+    }
+
+    public static Singleton getInstance(String value) {
+        if (instance == null) {
+            instance = new Singleton(value);     вот самый нужный код!!
+        }
+        return instance;
+    }
+}
+ DemoSingleThread.java: Клиентский код
+package refactoring_guru.singleton.example.non_thread_safe;
+
+public class DemoSingleThread {
+    public static void main(String[] args) {
+        System.out.println("If you see the same value, then singleton was reused (yay!)" + "\n" +
+                "If you see different values, then 2 singletons were created (booo!!)" + "\n\n" +
+                "RESULT:" + "\n");
+        Singleton singleton = Singleton.getInstance("FOO");
+        Singleton anotherSingleton = Singleton.getInstance("BAR");
+        System.out.println(singleton.value);
+        System.out.println(anotherSingleton.value);
+    }
+}
+ OutputDemoSingleThread.txt: Результаты выполнения
+If you see the same value, then singleton was reused (yay!)
+If you see different values, then 2 singletons were created (booo!!)
+
+RESULT:
+
+FOO
+FOO
+
+
+
+
+
+
