@@ -105,7 +105,7 @@ class Solution5 {
 
 
   public static Map<String, Date> createMap() throws ParseException {
-        DateFormat dateFormat = new SimpleDateFormat("MMMMM d yyyy", Locale.ENGLISH);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MMMMM d yyyy", Locale.ENGLISH);
         Map<String, Date> map = new HashMap<>();
         map.put("Сталлоне", dateFormat.parse("MAY 1 2012"));
         map.put("Петровский", dateFormat.parse("JUNE 1 2012"));

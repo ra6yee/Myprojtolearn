@@ -1,0 +1,207 @@
+Создать объект Calendar можно командой:
+
+Calendar date = Calendar.getInstance();
+
+Статический метод getInstance() класса Calendar создаст объект Calendar, инициализированный текущей датой. В зависимости
+ от настроек компьютера, на котором выполняется программа, будет создан нужный календарь.
+
+Более правильно было бы сказать — актуальный. Дело в том, что на Земле не один, а много календарей. И почти каждый из
+них связан с какой-нибудь религией или страной. Класс Calendar поддерживает 3 из них:
+
+Календарь	Описание
+GregorianCalendar	Христианский Григорианский календарь
+BuddhistCalendar	Буддистский календарь
+JapaneseImperialCalendar	Японский Императорский календарь
+
+
+Мы будем использовать Григорианский календарь как самый распространенный в мире.
+
+Объект календарь с произвольной датой создается командой:
+
+Calendar date = new GregorianCalendar(год, месяц, день);
+
+Да, каждый раз придется писать GregorianCalendar. Можно и вместо Calendar писать GregorianCalendar: так тоже будет
+работать.
+
+Год нужно писать полностью: никаких 19 вместо 2019. Месяцы по-прежнему нумеруются с нуля. А дни месяца по-прежнему
+нумеруются не с нуля.
+
+Чтобы задать не только дату, но и время, нужно передать их дополнительными параметрами:
+
+... = new GregorianCalendar(год, месяц, день, часы, минуты, секунды);
+
+!!!!!!Можно даже передать миллисекунды, если это необходимо: их указывают следующим параметром после секунд.
+
+3. Вывод объекта календарь на экран
+Если просто вывести объект-календарь на экран, результат вас не сильно порадует.
+
+Код
+Calendar calendar = new GregorianCalendar(2019, 03, 12);
+System.out.println(calendar);
+
+Вывод на экран
+
+java.util.GregorianCalendar[time=?,areFieldsSet=false,areAllFieldsSet=false,lenient=true,zone=sun.util.calendar.ZoneInfo
+[id="Europe/Helsinki",offset=7200000,dstSavings=3600000,useDaylight=true,transitions=118,lastRule=java.util.
+SimpleTimeZone[id=Europe/Helsinki,offset=7200000,dstSavings=3600000,useDaylight=true,startYear=0,startMode=2,
+startMonth=2,startDay=-1,startDayOfWeek=1,startTime=3600000,startTimeMode=2,endMode=2,endMonth=9,endDay=-1,
+endDayOfWeek=1,endTime=3600000,endTimeMode=2]],firstDayOfWeek=1,minimalDaysInFirstWeek=1,ERA=?,YEAR=2019,MONTH=3,
+WEEK_OF_YEAR=?,WEEK_OF_MONTH=?,DAY_OF_MONTH=12,DAY_OF_YEAR=?,DAY_OF_WEEK=?,DAY_OF_WEEK_IN_MONTH=?,AM_PM=0,HOUR=0,
+HOUR_OF_DAY=0,MINUTE=0,SECOND=0,MILLISECOND=?,ZONE_OFFSET=?,DST_OFFSET=?]
+Все дело в том, что календарь — это именно календарь, а не дата: у него много всяких настроек, и они все выводятся на экран.
+
+Правильно будет отображать объект календарь с помощью класса SimpleDateFormat, но пока мы его не изучили,
+можно использовать лайфхак.
+
+Date date = calendar.getTime();
+
+Дело в том, что объект типа Calendar можно легко преобразовать к объекту типа Date, а как выводить на экран объект типа
+Date, вы уже знаете. Примерно так можно преобразовать объект Calendar в Date:
+
+Использование метода getTime():
+
+Calendar calendar = new GregorianCalendar(2019, 03, 12);
+System.out.println(calendar.getTime());
+
+ Fri Apr 12 00:00:00 EEST 2019
+
+Совсем другое дело, не так ли?
+
+4. Работа с фрагментами даты
+Чтобы получить фрагмент даты (год, месяц, ...), у класса Calendar есть специальный метод — get(). Метод один,
+ зато с параметрами:
+
+int month = calendar.get(Calendar.MONTH);
+Где calendar — это переменная типа Calendar, а MONTH — это переменная-константа класса Calendar.
+
+В метод get в качестве параметра вы передаете специальную константу класса Calendar, и в результате получаете
+нужное значение.
+
+Примеры
+
+Calendar calendar = Calendar.getInstance();
+
+int era = calendar.get(Calendar.ERA);
+int year = calendar.get(Calendar.YEAR);
+int month = calendar.get(Calendar.MONTH);
+int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+int hour = calendar.get(Calendar.HOUR);
+int minute = calendar.get(Calendar.MINUTE);
+int second = calendar.get(Calendar.SECOND);
+
+
+эра (до нашей эры или после)
+год
+месяц
+день месяца
+
+день недели
+часы
+минуты
+секунды
+
+Для изменения фрагмента даты используется метод set:
+
+calendar.set(Calendar.MONTH, значение);
+Где calendar — это переменная типа Calendar, а MONTH — это переменная-константа класса Calendar.
+
+В метод set в качестве первого параметра вы передаете специальную константу класса Calendar, а в качестве второго
+параметра — новое значение.
+
+Примеры
+
+Calendar calendar = new GregorianCalendar();
+
+calendar.set(Calendar.YEAR, 2019);
+calendar.set(Calendar.MONTH, 6);
+calendar.set(Calendar.DAY_OF_MONTH, 4);
+calendar.set(Calendar.HOUR_OF_DAY, 12);
+calendar.set(Calendar.MINUTE, 15);
+calendar.set(Calendar.SECOND, 0);
+
+System.out.println(calendar.getTime());
+
+
+год = 2019
+месяц = Июль (нумерация с 0)
+4 число
+часы
+минуты
+секунды
+
+5. Константы класса Calendar
+
+В классе Calendar есть константы не только для названия фрагментов даты, а кажется, на все случаи жизни.
+
+Calendar date = new GregorianCalendar(2019, Calendar.JANUARY, 31);
+Например, есть константы для обозначения месяцев:
+
+Или, например, для дней недели:
+
+Calendar calendar = new GregorianCalendar(2019, Calendar.JANUARY, 31);
+
+if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY)
+{
+   System.out.println("Это пятница");
+}
+Всего перечислять не будем. Просто хотим, чтобы вы не удивлялись, если встретите такие записи в коде.
+
+Использование констант позволяет сделать код более читабельным, поэтому программисты их и добавили. Ну а месяцы
+нумеруются с нуля тоже ради читабельности. Или нет.
+
+6. Изменение даты в объекте Calendar
+
+У класса Calendar есть метод, который позволяет проводить с датой более умные операции. Например, добавить к дате год,
+ месяц или несколько дней. Или отнять. Называется этот метод add(). Выглядит работа с ним примерно так:
+
+calendar.add(Calendar.MONTH, значение);
+Где calendar — это переменная типа Calendar, а MONTH — это переменная-константа класса Calendar.
+
+В метод add в качестве первого параметра вы передаете специальную константу класса Calendar, и в качестве второго
+ параметра — значение, которое нужно добавить.
+
+Особенность этого метода в том, что он умный. Давайте сами посмотрим, насколько:
+
+Код
+Calendar calendar = new GregorianCalendar(2019, Calendar.FEBRUARY, 27);
+calendar.add(Calendar.DAY_OF_MONTH, 2);
+System.out.println(calendar.getTime());
+Вывод на экран
+Fri Mar 01 00:00:00 EET 2019
+Этот метод понимает, что в феврале 2019 года всего 28 дней, и итоговая дата — 1 марта.
+
+А теперь давайте отнимем 2 месяца! Что должно получиться? 27 декабря 2018 года! Сейчас проверим.
+
+Чтобы выполнить действие, уменьшающее дату, нужно в метод add() передать значение с отрицательным знаком:
+
+Код
+Calendar calendar = new GregorianCalendar(2019, Calendar.FEBRUARY, 27);
+calendar.add(Calendar.MONTH, -2);
+System.out.println(calendar.getTime());
+Вывод на экран
+Thu Dec 27 00:00:00 EET 2018
+Работает!
+
+Этот метод учитывает длины месяцев и високосные годы. В общем, отличный метод. Именно то, что нужно большинству
+программистов, которые плотно работают с датами.
+
+7. Прокручивание фрагментов даты
+Но иногда бывают ситуации, когда такое умное поведение излишне: хочется что-то сделать с одной частью даты,
+ не меняя все остальное.
+
+Для этого у класса Calendar есть специальный метод — roll(). По своей сигнатуре он полностью аналогичен методу add(),
+ но любые изменения с его помощью затрагивают один параметр, остальные остаются неизменными.
+
+Пример:
+
+Код
+Calendar calendar = new GregorianCalendar(2019, Calendar.FEBRUARY, 27);
+calendar.roll(Calendar.MONTH, -2);
+System.out.println(calendar.getTime());
+Вывод на экран
+Fri Dec 27 00:00:00 EET 2019
+Месяц мы поменяли, а год и число остались неизменными.
+
+
