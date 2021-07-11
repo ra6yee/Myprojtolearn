@@ -6,8 +6,9 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="ява_база_синтаксис" />
         <module name="Myprojtolearn" />
+        <module name="ява_база_синтаксис" />
+        <module name="Myprojtolearn1" />
       </profile>
     </annotationProcessing>
   </component>
