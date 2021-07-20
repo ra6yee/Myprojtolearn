@@ -1,0 +1,17 @@
+— Reflection – это способность класса получить информацию о самом себе. В Java есть специальные классы: Field – поле,
+ Method – метод, по аналогии с Class для классов. Т.к. объект типа Class дает возможность получить информацию о классе,
+ то объект типа Field–получить информацию о «поле класса», а Method–о «методе класса». И вот что с ними можно делать:
+
+Код на Java	Описание
+Class[] interfaces = List.class.getInterfaces();
+Получаем список «объектов класса» для интерфейсов класса List
+Class parent = String.class.getSuperclass();
+Получаем «объект класса» родительского класса для класса String
+Method[] methods = List.class.getMethods();
+Получаем список методов, которые есть у класса List
+String s = String.class.newInstance();
+Создаем новый объект класса String
+String s = String.class.newInstance();
+Method m = String.class.getMethod("length");
+int length = (int) m.invoke(s);
+Получаем метод length у класса String, вызываем его у строки s
