@@ -1,0 +1,89 @@
+у каждого символа есть код (число). Именно поэтому тип char считается не только символьным, но и числовым типом.
+
+Например код символа А английского алфавита – 65. B – 66, C – 67и так далее. Свои коды есть у больших букв и у
+маленьких, у русских букв, у китайских (ага, много, много кодов), у цифр, у различных символов – словом практически у
+всего, что можно назвать символом.
+
+Символ можно преобразовать в число, а число в символ. Java вообще практически не видит разницы между ними:
+
+char c = 'A'; //код(число) буквы А – 65
+c++; //Теперь с содержит число 66 – код буквы B
+
+
+— Так вот, кодировкой называется набор символов и соответствующий им набор кодов. Только таких кодировок придумали не
+одну, а достаточно много. А потом появилась универсальная – Unicode.
+
+размер типа char в Java – два байта. И строки в Java имеют формат Unicode.
+
+Но Java позволяет преобразовать строку в набор байт любой известной ей кодировки. Для этого есть специальные методы у
+класса String(!). Также в Java есть специальный класс Charset, который описывает конкретную кодировку.
+
+1) Как получить список всех кодировок, с которыми Java может работать?
+
+Для этого есть специальный статический метод availableCharsets. Этот метод возвращает набор пар (имя кодировки, объект
+описывающий кодировку)
+
+SortedMap<String,Charset> charsets = Charset.availableCharsets();
+У каждой кодировки есть уникальное имя, вот некоторые из них: UTF-8, UTF-16, Windows-1251, KOI8-R,…
+
+2) Как получить текущую активную кодировку (Unicode)?
+
+Для этого есть специальный метод defaultCharset
+
+Charset currentCharset = Charset.defaultCharset();
+3) Как преобразовать строку в определенную кодировку?
+
+В Java на основе строки можно создать массив байт в любой известной Java кодировке:
+
+Метод	Пример
+byte[] getBytes()
+                           String s = "Good news everyone!";
+                                   byte[] buffer = s.getBytes()
+                                     byte[] getBytes(Charset charset)
+String s = "Good news everyone!";
+Charset koi8 = Charset.forName("KOI8-R");
+                                            byte[] buffer = s.getBytes(koi8);
+                                                 byte[] getBytes(String charsetName)
+                                                      String s = "Good news everyone!";
+                                                        byte[] buffer = s.getBytes("Windows-1251")
+4) А как преобразовать набор байт, которые я прочитал из файла в строку, если я знаю в какой кодировке они были в файле?
+
+Тут все еще проще – у класса String есть специальный конструктор:
+
+Метод	Пример
+String(byte bytes[])
+byte[] buffer = new byte[1000];
+inputStream.read(buffer);
+
+String s = new String(buffer);
+String(byte bytes[], Charset charset)
+byte[] buffer = new byte[1000];
+inputStream.read(buffer);
+
+Charset koi8 = Charset.forName("KOI8-R");
+String s = new String(buffer, koi8);
+String(byte bytes[], String charsetName)
+byte[] buffer = new byte[1000];
+inputStream.read(buffer);
+
+String s = new String(buffer, "Windows-1251");
+5) А как преобразовать набор байт из одной кодировки в другую?
+
+Есть много способов. Вот тебе один из самых простых:
+
+Charset koi8 = Charset.forName("KOI8-R");
+Charset windows1251 = Charset.forName("Windows-1251");
+
+byte[] buffer = new byte[1000];
+inputStream.read(buffer);
+String s = new String(buffer, koi8);
+buffer = s.getBytes(windows1251);
+outputStream.write(buffer);
+
+
+
+
+
+
+
+

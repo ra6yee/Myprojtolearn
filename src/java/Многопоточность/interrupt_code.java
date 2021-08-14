@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.Socket;
 
 public class interrupt_code {
 }
@@ -244,6 +247,152 @@ class Solution24 {
     }
 }
 
+
+/*
+Работать в поте лица!
+Реализуй логику метода interrupt, который должен прерывать трэд предварительно закрыв используемые ресурсы.
+Используй метод super-класса в блоке finally.
+Требования:
+•
+Сигнатуру метода interrupt менять нельзя.
+•
+Метод interrupt должен закрывать используемые классом Solution ресурсы.
+•
+Затем, метод interrupt должен прерывать трэд (вызов super.interrupt).
+•
+Трэд должен быть прерван в любом случае, даже если во время закрытия ресурсов было выкинуто исключение.
+
+*/
+ class Solution222 extends Thread {
+    private static final int BUFFER_SIZE = 2000;    //2000 bytes
+    private final Socket socket;
+    private final InputStream in;
+
+    public Solution222(Socket socket) throws IOException {
+        this.socket = socket;
+        this.in = socket.getInputStream();
+    }
+
+    public void interrupt() {
+        try {
+            this.in.close();
+            this.in.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            super.interrupt();
+        }
+
+    }
+
+    public void run() {
+        try {
+            byte[] buf = new byte[BUFFER_SIZE];
+            while (true) {
+                int count = in.read(buf);
+                if (count < 0) {
+                    break;
+                } else {
+                    if (count > 0) {
+                        //process buffer here
+                    }
+                }
+            }
+        } catch (IOException ignored) {}
+    }
+
+    public static void main(String[] args) {
+    }
+}
+/*
+Не валять дурака
+Восстанови логику класса TaskManipulator.
+Требования:
+•
+Класс TaskManipulator должен реализовывать интерфейсы Runnable и CustomThreadManipulator.
+•
+Метод run должен каждые 100 миллисекунд выводить имя исполняемой нити в консоль.
+•
+Класс TaskManipulator должен иметь внутреннее поле типа Thread.
+•
+Метод start должен создавать, сохранять во внутреннее поле и запускать нить с именем, которое передано через аргумент метода.
+•
+Метод stop должен прерывать последнюю созданную классом TaskManipulator нить.
+
+*/
+ class Solution221
+{
+    /*
+     Output:
+     first
+     first
+     second
+     second
+     second
+     third
+     fifth
+     */
+    public static void main(String[] args) throws InterruptedException {
+        CustomThreadManipulator manipulator = new TaskManipulator();
+
+        manipulator.start("first");
+        Thread.sleep(150);
+        manipulator.stop();
+
+        manipulator.start("second");
+        Thread.sleep(250);
+        manipulator.stop();
+
+        manipulator.start("third");
+        Thread.sleep(50);
+        manipulator.stop();
+
+        manipulator.start("forth");
+        manipulator.stop();
+
+        manipulator.start("fifth");
+        Thread.sleep(1);
+        manipulator.stop();
+    }
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////package com.javarush.task.task25.task2508;
+
+class TaskManipulator implements Runnable,CustomThreadManipulator {
+   private Thread thread;
+    @Override
+    public void run() {
+        try {
+            while(!thread.isInterrupted()) {
+                System.out.println(thread.getName());
+
+                Thread.currentThread().sleep(100);
+
+                }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+
+    @Override
+    public void start(String threadName)  {
+    thread=new Thread(this,threadName);
+       thread.start();
+
+    }
+
+    @Override
+    public void stop() {
+thread.interrupt();
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////package com.javarush.task.task25.task2508;
+
+ interface CustomThreadManipulator {
+    public void start(String threadName) throws InterruptedException;
+    public void stop();
+}
 
 
 

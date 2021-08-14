@@ -1,0 +1,346 @@
+Сортировка и упорядочивание. Интерфейсы Comparable и Comparator
+
+Начиная с версии 1.5, в Java появились два интерфейса java.lang.Comparable и java.util.Comparator. Объекты классов,
+реализующие один из этих интерфейсов, могут быть упорядоченными. Зачем же тогда два интерфейса, которые делают одно
+ и тоже действие, спросите вы. Вот об этом мы и поговорим в этой статье.
+
+Интерфейс Comparable
+В интерфейсе Comparable объявлен всего один метод compareTo(Object obj), предназначенный для реализации упорядочивания
+объектов класса. Его удобно использовать при сортировке упорядоченных списков или массивов объектов.
+Данный метод сравнивает вызываемый объект с obj. В отличие от метода equals, который возвращает true или false,
+compareTo возвращает:
+·         0, если значения равны;
+·         Отрицательное значение, если вызываемый объект меньше параметра;
+·         Положительное значение ,  если вызываемый объект больше параметра.
+
+Метод может выбросить исключение ClassCastException, если типы объектов не совместимы при сравнении.
+Необходимо помнить, что  аргумент метода compareTo имеет тип сравниваемого объекта класса.
+
+Классы Byte, Short, Integer, Long, Double, Float, Character, String уже реализуют интерфейс Comparable.
+
+Давайте приведем пример реализующий интерфейс.
+
+import java.util.TreeSet;
+
+class Comp implements Comparable {
+
+       String str;
+       int number;
+
+       Comp(String str, int number) {
+             this.str = str;
+             this.number = number;
+       }
+
+       @Override
+       public int compareTo(Object obj) {
+             Comp entry = (Comp) obj;
+
+             int result = str.compareTo(entry.str);
+             if(result != 0) {
+                    return result;
+             }
+
+             result = number - entry.number;
+             if(result != 0) {
+                    return (int) result / Math.abs( result );
+             }
+             return 0;
+       }
+
+}
+
+public class Example {
+
+       public static void main(String[] args) {
+             TreeSet<Comp> ex = new TreeSet<Comp>();
+             ex.add(new Comp("Stive Global", 121));
+             ex.add(new Comp("Stive Global", 221));
+             ex.add(new Comp("Nancy Summer", 3213));
+             ex.add(new Comp("Aaron Eagle", 3123));
+             ex.add(new Comp("Barbara Smith", 88786));
+
+             for(Comp e : ex) {
+                    System.out.println("Str: " + e.str + ", number: " + e.number);
+             }
+       }
+
+}
+/*результат:
+* Str: Aaron Eagle, number: 3123
+* Str: Barbara Smith, number: 88786
+* Str: Nancy Summer, number: 3213
+* Str: Stive Global, number: 121
+* Str: Stive Global, number: 221
+*/
+
+В данном примере, значения сортируются сначала по полю str, а затем по number. Это хорошо видно по двум последним
+строкам результата.
+Для того чтобы сделать сортировку в обратном порядке, необходимо внести некоторые изменения в метод compareTo:
+
+@Override
+public int compareTo(Object obj) {
+       Comp entry = (Comp) obj;
+
+       int result = entry.str.compareTo(str); // значения меняются местами
+       if(result != 0) {
+             return result;
+       }
+
+       result = entry.number - number; // значения меняются местами
+       if(result != 0) {
+             return (int) result / Math.abs( result );
+       }
+       return 0;
+}
+/* результат:
+* Str: Stive Global, number: 221
+* Str: Stive Global, number: 121
+* Str: Nancy Summer, number: 3213
+* Str: Barbara Smith, number: 88786
+* Str: Aaron Eagle, number: 3123
+ */
+
+Как видно данные отсортированы в обратном порядке, сначала по имени, а потом по цифрам.
+Также можно произвести сортировку по фамилии.
+
+@Override
+public int compareTo(Object obj) {
+       Comp entry = (Comp) obj;
+
+// сначала ищем позицию пробела с помощью функции indexOf(),
+//после начиная с найденной позиции выкусываем подстроку
+       String str1 = str.substring(str.indexOf(" "));
+       String str2 = entry.str.substring(entry.str.indexOf(" "));
+
+       // после получения подстрокой производим сравнение
+       int result = str1.compareTo(str2);
+       if(result != 0) {
+             return result;
+       }
+
+       result = number - entry.number;
+       if(result != 0) {
+             return (int) result / Math.abs( result );
+       }
+       return 0;
+}
+
+}
+/* результат:
+* Str: Aaron Eagle, number: 3123
+* Str: Stive Global, number: 121
+* Str: Stive Global, number: 221
+* Str: Barbara Smith, number: 88786
+* Str: Nancy Summer, number: 3213
+*/
+
+Вот такими несложными манипуляциями мы можем управлять упорядочиванием списка.
+
+Интерфейс Comparator
+В интерфейсе Comparator объявлено два метода compare(Object obj1, Object obj2) и equals(Object obj).
+compare(Object obj1, Object obj2) – так же, как и метод compareTo интерфейса Comparable, упорядочивает объекты класса.
+Точно так же на выходе получает 0, положительное значение и отрицательное значение.
+Метод может выбросить исключение ClassCastException, если типы объектов не совместимы при сравнении.
+Основным отличием интерфейса Comparator от Comparable является то, что вы можете создавать несколько видов независимых
+сортировок.
+Пример реализации интерфейса.
+
+package my.value;
+
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.TreeSet;
+
+
+class Comp implements Comparator<String> {
+
+       @Override
+       public int compare(String obj1, String obj2) {
+             // поиск пробелов, для сортировки по фамилии
+             int k = obj1.substring(obj1.indexOf(" "))
+.compareTo(obj2.substring(obj2.indexOf(" ")));
+             if(k == 0) {
+                    return obj1.compareTo(obj2);
+             }
+             else {
+                    return k;
+             }
+       }
+
+}
+
+public class Example {
+
+       public static void main(String[] args) {
+             TreeSet<String> ex = new TreeSet<String>(new Comp());
+             ex.add(new String("Stive Global"));
+             ex.add(new String("Stive Cooper"));
+             ex.add(new String("Nancy Summer"));
+             ex.add(new String("Aaron Eagle"));
+             ex.add(new String("Barbara Smith"));
+
+             Iterator<String> i = ex.iterator();
+
+             while(i.hasNext()) {
+                    String ts = i.next();
+                    System.out.println("Str: " + ts);
+             }
+       }
+
+}
+/* результат:
+* Str: Stive Cooper
+* Str: Aaron Eagle
+* Str: Stive Global
+* Str: Barbara Smith
+* Str: Nancy Summer
+*/
+Все вроде хорошо, но где же несколько видов сортировки, спросите вы.
+Давайте усложним ситуацию и создадим класс Product с полями name, price и quantity. В данном классе будет реализовано
+два вида сортировки: по названию и по цене.
+package my.value;
+
+import java.util.Arrays;
+import java.util.Comparator;
+
+
+// создадим простой объект, в котором будем хранить данные
+class Product {
+       private String name;
+       private double price;
+       private int quantity;
+
+       public String getName() {
+             return name;
+       }
+       public void setName(String name) {
+             this.name = name;
+       }
+       public double getPrice() {
+             return price;
+       }
+       public void setPrice(double price) {
+             this.price = price;
+       }
+       public int getQuantity() {
+             return quantity;
+       }
+       public void setQuantity(int quantity) {
+             this.quantity = quantity;
+       }
+}
+
+// теперь собственно реализуем интерфейс Comparator, для сортировки по названию
+class SortedByName implements Comparator<Product> {
+
+       public int compare(Product obj1, Product obj2) {
+
+             String str1 = obj1.getName();
+             String str2 = obj2.getName();
+
+             return str1.compareTo(str2);
+       }
+}
+
+// а так же реализуем интерфейс Comparator, для сортировки по цене
+class SortedByPrice implements Comparator<Product> {
+
+       public int compare(Product obj1, Product obj2) {
+
+             double price1 = obj1.getPrice();
+             double price2 = obj2.getPrice();
+
+             if(price1 > price2) {
+                    return 1;
+             }
+             else if(price1 < price2) {
+                    return -1;
+             }
+             else {
+                    return 0;
+             }
+       }
+}
+
+// ну и собственно работа с нашими данными
+public class Example {
+
+       public static void main(String[] args) {
+             Product[] p = new Product[3];
+
+             // заполним объект Product содержимым
+             p[0] = new Product();
+             p[0].setName("Milk");
+             p[0].setPrice(7.56);
+             p[0].setQuantity(56);
+
+             p[1] = new Product();
+             p[1].setName("Coffee");
+             p[1].setPrice(17.00);
+             p[1].setQuantity(32);
+
+             p[2] = new Product();
+             p[2].setName("Tea");
+             p[2].setPrice(12.50);
+             p[2].setQuantity(0);
+
+             // выведем данные без сортировки
+             System.out.println("============ no sorted ==============");
+
+             for(Product i : p) {
+                    System.out.println("Name: " + i.getName() +
+                                        " price: " + i.getPrice() +
+" quantity: " + i.getQuantity());
+             }
+
+             // отсортируем и выведем данные по цене
+             System.out.println("========== sorted by price===========");
+
+             Arrays.sort(p, new SortedByPrice());
+
+             for(Product i : p) {
+                    System.out.println("Name: " + i.getName() +
+                                        " price: " + i.getPrice() +
+" quantity: " + i.getQuantity());
+             }
+
+             // отсортируем и выведем данные по названию
+             System.out.println("========== sorted by name ===========");
+
+             Arrays.sort(p, new SortedByName());
+             for(Product i : p) {
+                    System.out.println("Name: " + i.getName() +
+                                        " price: " + i.getPrice() +
+" quantity: " + i.getQuantity());
+             }
+       }
+
+}
+/* результат:
+============ no sorted ==============
+Name: Milk price: 7.56 quantity: 56
+Name: Coffee price: 17.0 quantity: 32
+Name: Tea price: 12.5 quantity: 0
+========== sorted by price===========
+Name: Milk price: 7.56 quantity: 56
+Name: Tea price: 12.5 quantity: 0
+Name: Coffee price: 17.0 quantity: 32
+========== sorted by name ===========
+Name: Coffee price: 17.0 quantity: 32
+Name: Milk price: 7.56 quantity: 56
+Name: Tea price: 12.5 quantity: 0
+*/
+
+В чем преимущество этого примера? Как вы, возможно, заметили, мы реализовали два независимых компаратора -SortedByName
+ и SortedByPrice.
+Сортировку мы производим с помощью класса Arrays, у которого есть метод sort. Данный метод в качестве второго аргумента
+принимает тип компаратора.
+
+       Arrays.sort(T[] arg1, Comparator<? super T> arg2);
+
+Так же можно использовать метод sort класса  Collections, но он в качестве первого входного аргумента принимает список:
+
+       Collections.sort(List<T> arg1, Comparator<? super T> arg2);
+
+ equals(Object obj)  - сравнивает компараторы объектов. Переопределяется очень редко.

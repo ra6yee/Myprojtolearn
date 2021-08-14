@@ -1,0 +1,138 @@
+
+enum – это тип, заданный перечислением набора значений, которые могут принимать его переменные.
+
+public enum Direction
+{
+ UP,
+ DOWN,
+ LEFT,
+ RIGHT,
+}
+
+Direction direction = Direction.LEFT;
+
+if (direction == Direction.LEFT)
+ direction = Direction.RIGHT;
+else
+ direction = Direction.DOWN;
+
+ — Т.е. мы просто перечисляем набор значений и все?
+
+ — Да, объявляем enum, внутри через запятую пишем его возможные значения.
+
+ Использовать его тоже довольно просто.
+
+ — А ему можно присваивать null?
+
+ — Да, enum – это обычный класс – вернее, одна из его разновидностей, таких как interface.
+
+ — Т.е. везде, где я могу использовать класс, я могу использовать enum?
+
+ — Да.
+
+ — А внутри класса можно объявить enum?
+
+ — Да.
+
+ — А унаследоваться от enum?
+
+ — Нет, ни наследоваться от enum, ни наследовать enum нельзя.
+
+ — А почему?
+
+ — Потому что Java-компилятор превращает enum примерно вот в это:
+
+ public final class Direction extends Enum
+ {
+  public static final Direction UP = new Direction();
+  public static final Direction DOWN = new Direction();
+  public static final Direction LEFT = new Direction();
+  public static final Direction RIGHT = new Direction();
+
+  private Direction() {} //приватный конструктор
+ }
+ Как видно из этого примера:
+
+ 1) Класс Direction обязательно наследуется от класса Enum, поэтому его нельзя унаследовать больше ни от чего.
+
+ 2) Класс Direction объявлен final, поэтому от него нельзя ничего унаследовать.
+
+ 3) Набор значений класса Direction на самом деле – это public static final переменные типа Direction. Что видно по
+ коду их использования:
+
+ Direction direction = Direction.LEFT;
+ 4) Класс Direction содержит только один конструктор и тот – приватный. Это значит, что объекты класса Direction можно
+ создать только в коде внутри класса. Кроме объявленных объектов, других объектов создать нельзя.
+
+ 5) Переменным типа Direction можно присвоить ссылку на любой из существующих объектов типа Direction – все они
+ определены у него внутри. Других объектов данного типа нет, и не будет.
+
+ 6) Объекты типа Direction можно сравнивать с помощью знака «==» — это будет просто сравнение ссылок.
+
+ — Не сказал бы, что все очень понятно, но после твоего примера, стало гораздо понятнее.
+
+ — Отлично. Тогда вот тебе еще чуток информации:
+
+ 1) У каждого объекта типа Direction есть его уникальный номер. У первого (UP) – 0, у второго (DOWN) – 1, у третьего
+ (LEFT) – 2, и т.д. Получить этот номер можно с помощью метода ordinal(). Внимание на экран:
+
+ Direction direction = Direction.LEFT;
+ int index = direction.ordinal();
+ int index2 = Direction.RIGHT.ordinal();
+ 2) У каждого enum’а есть метод values(), который возвращает массив значений enum’а.
+
+ int leftIndex = Direction.LEFT.ordinal();
+
+ Direction[] array = Direction.values();
+ Direction left = array[leftIndex];
+ Т.е. мы можем у любого элемента enum’а получить его номер, а затем по номеру опять получить элемент.
+
+ Мы также можем использовать enum в цикле foreach:
+
+ for (Direction direction : Direction.values())
+ {
+  System.out.println(direction);
+ }
+ Вывод на экран будет:
+ UP
+ DOWN
+ LEFT
+ RIGHT
+ — Значит, у enum’а переопределен метод toString? Он же не выводит на экран что-то вроде
+ «com.javarush.Direction@123fd4»?
+
+ — Да, более того у каждого enum’а, а значит и у Direction есть возможность преобразовать его в строку и обратно.
+
+ Преобразование в строку:
+ String left = Direction.LEFT.toString(); // left == "LEFT";
+ Преобразование строки в enum:
+ Direction direction = Direction.valueOf("LEFT");
+ — О, все понятно.
+
+ А что будет, если в функцию valueOf передать строку, которой нет в Direction? Например, «AMIGO»?
+
+ — А ты сам как думаешь?
+
+ — Exception?
+
+ — Ага. IllegalArgumentException.
+
+ На этом наше введение в мир enum’ов окончено.
+
+
+
+
+Перечисления enum
+Содержит набор констант, каждая из которых является объектом класса Enum<>
+	• Унаследован от класса Enum
+	• Создать экземпляр класса нельзя
+	• Не наследуется
+	• Поддерживает реализацию интерфейсов
+	• Может содержать методы, переменные
+	• Содержит ПРИВАТНЫЙ конструктор
+Методы:
+name() values() valueOf() ordinal()
+
+
+
+

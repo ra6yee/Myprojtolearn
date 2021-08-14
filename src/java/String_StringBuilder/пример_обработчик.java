@@ -60,7 +60,7 @@ a) 1# : StringForFirstThreadTooShortException : java.lang.StringIndexOutOfBound
         this.thread2 = new Thread(new Task(this, "J\tK\tL\tM\tN\tO\tP\tQ\tR\tS\tT\tU\tV\tW\tX\tY\tZ"), SECOND_THREAD_NAME);
         this.thread3 = new Thread(new Task(this, "\t\t"), "3#");
 
-     //   Thread.setDefaultUncaughtExceptionHandler(new OurUncaughtExceptionHandler());
+        Thread.setDefaultUncaughtExceptionHandler(new OurUncaughtExceptionHandler());
 
         this.thread1.start();
         this.thread2.start();
@@ -76,8 +76,14 @@ a) 1# : StringForFirstThreadTooShortException : java.lang.StringIndexOutOfBound
 }
 
  class StringForFirstThreadTooShortException extends RuntimeException {
+ }
+class StringForSecondThreadTooShortException extends RuntimeException{
 
 }
+//class OurUncaughtExceptionHandler {
+//    public OurUncaughtExceptionHandler() {
+//    }
+//}
 
 class Task implements Runnable {
     private String initialString;

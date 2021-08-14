@@ -10,7 +10,7 @@ package src.java.Многопоточность;
 или наследовать класс Thread.
 
  */
-public class создание_нити {
+public class  создание_нити {
 
     static class Printer implements Runnable { //Класс, который реализует интерфейс Runnable.
         public void run() {

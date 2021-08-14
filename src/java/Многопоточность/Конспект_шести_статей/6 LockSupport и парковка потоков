@@ -1,0 +1,296 @@
+Начиная с Java 1.6 появился интересный механизм, называемый LockSupport.
+Данный класс ассоциирует с каждым потоком, который его
+использует, "permit" или разрешение.
+
+Вызов метода park возвращается немедленно, если permit доступен, занимая этот самый permit в процессе вызова. Иначе он
+блокируется.
+
+Вызов метода unpark делает permit доступным, если он ещё недоступен.
+
+Permit есть всего 1.
+
+В Java API для LockSupport ссылаются на некий Semaphore. Давайте посмотрим на простой пример:
+
+import java.util.concurrent.Semaphore;
+public class HelloWorldApp{
+
+    public static void main(String[] args) {
+        Semaphore semaphore = new Semaphore(0);
+        try {
+            semaphore.acquire();
+        } catch (InterruptedException e) {
+            // Просим разрешение и ждём, пока не получим его
+            e.printStackTrace();
+        }
+        System.out.println("Hello, World!");
+    }
+}
+
+Данный код будет вечно ждать, потому что в семафоре сейчас 0 permit. А когда в коде вызывается acquire
+(т.е. запросить разрешение), то поток ожидает, пока разрешение не получит.
+
+Так как мы ждём, то обязаны обработать InterruptedException.
+
+Интересно, что семафор реализует отдельное состояние потока.
+Если мы посмотрим в JVisualVM, то увидим, что у нас состояние не Wait, а Park.
+
+Посмотрим еще один пример:
+
+public static void main(String[] args) throws InterruptedException {
+        Runnable task = () -> {
+            //Запаркуем текущий поток
+            System.err.println("Will be Parked");
+            LockSupport.park();
+            // Как только нас распаркуют - начнём действовать
+            System.err.println("Unparked");
+        };
+        Thread th = new Thread(task);
+        th.start();
+        Thread.currentThread().sleep(2000);
+        System.err.println("Thread state: " + th.getState());
+
+        LockSupport.unpark(th);
+        Thread.currentThread().sleep(2000);
+}
+
+Статус потока будет WAITING, но JVisualVM различает wait от synchronized и park от LockSupport.
+
+Почему так важен этот LockSupport? Обратимся снова к Java API и посмотрим про Thread State WAITING.
+
+Как видим, в него можно попасть только тремя способами. 2 способа — это wait и join. А третий — это LockSupport.
+
+Локи в Java построены так же на LockSupport и представляют более высокоуровневые инструменты. Давайте попробуем воспользоваться таковым.
+
+Посмотрим, например, на ReentrantLock:
+
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+public class HelloWorld{
+
+    public static void main(String []args) throws InterruptedException {
+        Lock lock = new ReentrantLock();
+        Runnable task = () -> {
+            lock.lock();
+            System.out.println("Thread");
+            lock.unlock();
+        };
+        lock.lock();
+
+        Thread th = new Thread(task);
+        th.start();
+        System.out.println("main");
+        Thread.currentThread().sleep(2000);
+        lock.unlock();
+    }
+}
+
+Как и в прошлых примерах, тут всё просто. lock ожидает, пока кто-то освободит ресурс. Если посмотреть в JVisualVM,
+мы увидим что новый поток будет запаркован, пока main поток не отдаст ему лок.
+.......................................................................................................................
+Обычно в многопоточной среде для достижения потокобезопасности, мы используем ключевое слово synchronized. Однако
+сегодня мы рассмотрим конкурента этому способу в виде Lock API.
+
+В большинстве случаев, ключевое слово synchronized является хорошим выбором, но все же имеет некоторые недостатки.
+Именно поэтому еще в Java 1.5 был введен Concurrency API и пакет  java.util.concurrent.locks c интерфейсом Lock и
+некоторыми дополнительными классами, которые усовершенствовали механизм блокировки.
+
+Важные моменты в Concurrency Lock API
+Lock: Это базовый интерфейс в Lock API. Он обеспечивает все функции ключевого слова synchronized, добавляя новые методы
+для удобной работы. Например:
+метод lock() используется для того, чтобы получить lock для работы;
+метод unlock() — освободить lock;
+метод tryLock() для ожидания лока на протяжении определенного времени;
+метод newCondition() — создать Condition и т.п.
+Condition: Это похоже на wait-notify модель с рядом дополнительных функций. Объект Condition всегда создается с помощью
+объекта Lock.  Такой важный метод, как await() очень похож на wait(), а методы signal(), signalAll() похожи на notify()
+и notifyAll().
+ReadWriteLock содержит пару связанных локов: первый только для чтения, второй для записи. Лок для чтения может
+ предоставлять доступ одновременно для нескольких потоков.
+Класс ReentrantLock — это наиболее используемая реализация интерфейса Lock. Эта реализация интерфейса Lock аналогична
+использованию ключевого слова synchronized. Кроме реализации интерфейса Lock, ReentrantLock содержит ряд вспомогательных
+ методов для работы с потоками.
+Давайте рассмотрим использование Java Lock API на примере небольшой программы:
+
+Допустим, у нас есть тестовый класс с синхронизированными методами обработки чего-либо.
+
+Java
+public class Test{
+
+public synchronized foo(){
+    // что-то делаем с этим методом
+    bar();
+  }
+
+  public synchronized bar(){
+    // метод для обработки чего-то
+  }
+
+public class Test{
+
+public synchronized foo(){
+    // что-то делаем с этим методом
+    bar();
+  }
+
+  public synchronized bar(){
+    // метод для обработки чего-то
+  }
+}
+Если поток входит в метод foo(), то происходит лок на объекте Test. Когда поток пытается выполнить метод bar(), то
+беспрепятственно его выполняет, потому что уже лочит объект Test. Это в точности похоже на использование метода
+synchronized(this).
+
+А теперь давайте посмотрим простой пример, где можно и нужно заменить использование ключевого слова synchronized на
+Lock API.
+
+И так, пусть у нас есть класс Resource с парочкой потокобезопасных методов и методов, где потокобезопасность не требуется.
+
+Java
+public class Resource {
+
+    public void doSomething(){
+        // пусть здесь происходит работа с базой данных
+    }
+
+    public void doLogging(){
+        // потокобезопасность для логгирования нам не требуется
+    }
+}
+
+public class Resource {
+
+    public void doSomething(){
+        // пусть здесь происходит работа с базой данных
+    }
+
+    public void doLogging(){
+        // потокобезопасность для логгирования нам не требуется
+    }
+}
+А теперь берем класс, который реализует интерфейс Runnable и использует методы класса Resource.
+
+Java
+public class SynchronizedLockExample implements Runnable{
+
+    // экземпляр класса Resource для работы с методами
+    private Resource resource;
+
+    public SynchronizedLockExample(Resource r){
+        this.resource = r;
+    }
+
+    @Override
+    public void run() {
+        synchronized (resource) {
+            resource.doSomething();
+        }
+        resource.doLogging();
+    }
+}
+public class SynchronizedLockExample implements Runnable{
+
+    // экземпляр класса Resource для работы с методами
+    private Resource resource;
+
+    public SynchronizedLockExample(Resource r){
+        this.resource = r;
+    }
+
+    @Override
+    public void run() {
+        synchronized (resource) {
+            resource.doSomething();
+        }
+        resource.doLogging();
+    }
+}
+Обратите внимание, что мы используем блок synchronized для доступа чтобы получить лок на объекте Resource.
+
+А теперь давайте перепишем приведенную выше программу с использованием Lock API вместо ключевого слова synchronized.
+
+
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+// класс для работы с Lock API. Переписан с приведенной выше программы,
+// но уже без использования ключевого слова synchronized
+public class ConcurrencyLockExample implements Runnable{
+
+    private Resource resource;
+    private Lock lock;
+
+    public ConcurrencyLockExample(Resource r){
+        this.resource = r;
+        this.lock = new ReentrantLock();
+    }
+
+    @Override
+    public void run() {
+        try {
+            // пытаемся взять лок в течении 10 секунд
+            if(lock.tryLock(10, TimeUnit.SECONDS)){
+            resource.doSomething();
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }finally{
+            //убираем лок
+            lock.unlock();
+        }
+        // Для логгирования не требуется потокобезопасность
+        resource.doLogging();
+    }
+
+}
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+// класс для работы с Lock API. Переписан с приведенной выше программы,
+// но уже без использования ключевого слова synchronized
+public class ConcurrencyLockExample implements Runnable{
+
+    private Resource resource;
+    private Lock lock;
+
+    public ConcurrencyLockExample(Resource r){
+        this.resource = r;
+        this.lock = new ReentrantLock();
+    }
+
+    @Override
+    public void run() {
+        try {
+            // пытаемся взять лок в течении 10 секунд
+            if(lock.tryLock(10, TimeUnit.SECONDS)){
+            resource.doSomething();
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }finally{
+            //убираем лок
+            lock.unlock();
+        }
+        // Для логгирования не требуется потокобезопасность
+        resource.doLogging();
+    }
+
+}
+Как видно из программы, мы используем метод tryLock(), чтобы убедиться в том, что поток ждет только определенное время.
+Если он не получает блокировку на объект, то просто логгирует и выходит.
+
+Еще один важный момент. Мы используем блок try-finally, чтобы убедиться в том, что блокировка будет снята, даже если
+ метод doSomething() бросит исключение.
+
+Преимущества и недостатки каждого из способов или Lock vs synchronized
+На основании вышеизложенной информации и простого примера использования Lock API и блока synchronized, мы можем сделать
+следующие выводы о преимуществах и недостатках каждого из способов или же просто указать на разницу между ними.
+
+Lock API обеспечивает больше возможностей для блокировки, в отличие от synchronized, где поток может бесконечно ожидать
+лок. В Lock API мы можем использовать метод tryLock(), чтобы ожидать лок только определенное время.
+Синхронизированный код намного чище и проще в поддержке. В случае использования Lock API мы вынуждены писать try-finally
+ блок, чтобы убедиться в том, что блокировка будет снята, даже если между вызовами метода lock() и unlock().
+Блоки синхронизации могут покрывать только один метод, в то время как Lock API позволяет получить лок в одном методе, а
+ снять его в другом.
+

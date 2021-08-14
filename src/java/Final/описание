@@ -1,0 +1,168 @@
+Ключевое слово final можно добавлять при объявлении переменной, метода и класса.
+ Если мы пометили переменную словом final, то она становится неизменной:
+
+final int i = 5;
+i++; //ошибка компиляции – нельзя менять значение переменной i
+— Ясно.
+
+— Если мы пометили метод словом final, то этот метод запрещено переопределять в классах-наследниках:
+
+class Cat
+{
+ public final String getName()
+ {
+  return "cat";
+ }
+}
+
+class Tiger extends Cat
+{
+ public String getName() //ошибка компиляции – нельзя переопределять метод getName()
+ {
+  return "tiger";
+ }
+}
+— Ясно. А зачем может понадобиться запрещать переопределение метода?
+
+— Например, программист написал в этом методе много важного кода и хочет, чтобы все наследники его класса гарантированно
+ имели заданное поведение.
+
+И наконец – третье.
+
+Если мы пометим словом final класс, то таким образом мы запретим наследоваться от него.
+
+public final class Cat
+{
+ public String getName()
+ {
+  return "cat";
+ }
+}
+
+class Tiger extends Cat //ошибка компиляции – нельзя наследоваться от класса Cat
+{
+ public String getName()
+ {
+  return "tiger";
+ }
+}
+
+final можно писать перед переменными-аргументами функции и перед переменными в методе. Вот пример:
+
+public void setName(final String name)
+{
+ final String displayName = "Mr."+name;
+  …
+ this.name = displayName;
+}
+— А какой в этом смысл?
+
+— Ну, смыслов – два. Во-первых, мы объявляем переменную final – если хотим сообщить другим разработчикам, что это
+значение – определенная константа, а не просто переменная.
+
+
+
+Обрати внимание на такой момент — т.к. значение переменной менять нельзя, то ей сразу нужно присвоить начальное значение:
+
+
+
+
+
+Этот код скомпилируется
+class Home
+{
+ private final int width = 200;
+ private final int height = 100;
+
+ public Home()
+ {
+ }
+}
+Этот код не скомпилируется
+class Home
+{
+ private final int width;
+ private final int height;
+
+ public Home()
+ {
+ }
+}
+Но, вместе с тем, Java разрешает перенести инициализацию final-переменных класса в конструктор.
+
+Этот код скомпилируется
+class Home
+{
+ private final int width = 200;
+ private final int height;
+
+ public Home()
+ {
+  height = 100;
+ }
+}
+
+Этот код не скомпилируется
+class Home
+{
+ private final int width;
+ private final int height;
+
+ public Home()
+ {
+  height = 100;
+ }
+}
+Более того, в разных конструкторах final-переменные можно инициализировать разными значениями. Это очень удобно:
+
+Этот код скомпилируется
+class Home
+{
+ private final int width;
+ private final int height;
+
+ public Home()
+ {
+  height = 100;
+  width = 200;
+ }
+
+ public Home(int width)
+ {
+  this.height = 300;
+  this.width = width;
+ }
+
+ public Home(int width, int height)
+ {
+  this.height = height;
+  this.width = width;
+ }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

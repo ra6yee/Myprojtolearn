@@ -1,0 +1,54 @@
+Первый — создать своего наследника. Например:
+
+public class HelloWorld{
+    public static class MyThread extends Thread {
+        @Override
+        public void run() {
+            System.out.println("Hello, World!");
+        }
+    }
+
+    public static void main(String []args){
+        Thread thread = new MyThread();
+        thread.start();
+    }
+}
+
+Вариант с потомком от Thread плох уже тем, что мы в иерархию классов включаем Thread. Второй минус — мы начинаем
+нарушать принцип "Единственной ответственности" SOLID, т.к. наш класс становится одновременно ответственным и за
+управление потоком и за некоторую задачу, которая должна выполняться в этом потоке.
+
+Как же правильно? Ответ находится в том самом методе run, который мы переопределяем:
+
+public void run() {
+	if (target != null) {
+		target.run();
+	}
+}
+
+Здесь target — это некоторый java.lang.Runnable, который мы можем передать для Thread при создании экземпляра класса.
+Поэтому, мы можем сделать так:
+
+public class HelloWorld{
+    public static void main(String []args){
+        Runnable task = new Runnable() {
+            public void run() {
+                System.out.println("Hello, World!");
+            }
+        };
+        Thread thread = new Thread(task);
+        thread.start();
+    }
+}
+
+А ещё Runnable является функциональным интерфейсом начиная с Java 1.8. Это позволяет писать код задач для потоков ещё
+ красивее:
+
+public static void main(String []args){
+	Runnable task = () -> {
+		System.out.println("Hello, World!");
+	};
+	Thread thread = new Thread(task);
+	thread.start();
+}
+

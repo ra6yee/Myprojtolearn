@@ -1,4 +1,4 @@
-package src.java.синтаксис;
+package src.java.Compare;
 
 
 import java.util.ArrayList;

@@ -1,0 +1,93 @@
+Это интерфейс, методы которого позволяют отловить исключения в потоках, которые не обрабатывает виртуальная машина.
+
+Method invoked when the given thread terminates due to the
+         * given uncaught exception.
+         * <p>Any exception thrown by this method will be ignored by the
+         * Java Virtual Machine.
+         * @param t the thread
+         * @param e the exception
+       void uncaughtException(Thread t, Throwable e);
+
+Как можно понять из названия класса UncaughtExceptionHandler, он предназначен для перехвата необрабатываемых исключений.
+ Более точно, он предназначен для перехвата необрабатываемых исключений времени исполнения.
+
+Существует три способа установки обработчика необрабатываемых ошибок:
+
+Первое, вы можете вызвать метод
+setUncaughtExceptionHandler() класса Thread.. Его вызов позволяет настроить поведение обработчика для выбранного потока.
+
+Второе, вы можете создать объект ThreadGroup и изменять поведение всех потоков в группе переопределив метод
+ uncaughtException().
+
+Третье, вы можете установить поведение по умолчанию для всех потоков вызвав статический метод
+setDefaultUncaughtExceptionHandler() класса Thread.
+
+Методы setUncaughtExceptionHandler() и setDefaultUncaughtExceptionHandler() класса Thread в качестве аргумента принимает
+реализацию интерфейса UncaughtExceptionHandler. Данный интерфейс является внутренним интерфейсом класса Thread, таким
+образом, его полное имя будет Thread.UncaughtExceptionHandler. В данном интерфейсе определен один метод:
+
+void uncaughtException(Thread t, Throwable e)
+
+
+ представь теперь ситуацию – ты запускаешь нить, чтобы она выполнила нужную тебе работу, а у нее внутри возникает
+ Exception и она завершает работу, так и не выполнив того, что надо. Тебе бы надо как-то узнать об этой ошибке?
+
+— Согласен. А что, как-то можно перехватить исключение, которое возникло в другой запущенной нити. Неужели даже это есть
+ в Java?
+
+— Обижаешь. Еще как есть.
+
+Разработчики Java придумали специальный интерфейс UncaughtExceptionHandler. Вот как можно перехватить и обработать
+исключение в другой нити, если она не перехватила его сама:
+
+Пример
+public class DownloadManager
+{
+ public static void main(String[] args)
+ {
+   Thread thread = new DownloadThread();
+   thread.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler()
+   {
+    @Override
+    public void uncaughtException(Thread t, Throwable e)
+    {
+
+    }
+ });
+
+ thread.start();
+}
+У объекта типа Thread есть специальный метод – setUncaughtExceptionHandler. В него нужно передать объект, который
+реализует интерфейс Thread.UncaughtExceptionHandler. У этого интерфейса есть всего один метод
+uncaughtException(Thread t, Throwable e). Именно этот метод будет вызван у переданного объекта, если внутри метода run
+возникнет исключение, которое не будет захвачено.
+
+В приведенном мной примере, я просто объявляю анонимный внутренний класс (выделено красным), реализующий интерфейс
+ Thread.UncaughtExceptionHandler. И переопределяю в нем метод uncaughtException(Thread t, Throwable e).
+
+Как видно из параметров метода, в него будут переданы два параметра – ссылка на Thread, в котором возникло исключение,
+и само исключение – Throwable e.
+
+— А зачем нужна ссылка на Thread — переменная t? Мы же знаем, в какой поток устанавливаем объект типа
+Thread.UncaughtExceptionHandler?
+
+— А это сделано для того, чтобы ты мог написать универсальный обработчик таких ситуаций – создать один единственный
+объект и передавать его десяткам различных потоков. Тогда внутри метода uncaughtException(Thread t, Throwable e) у тебя
+всегда будет ссылка на нить, где возникло исключение.
+
+Кроме того, ты же можешь создавать нити десятками, например, в цикле для исполнения каких-нибудь задач. В общем – эта
+ссылка на нить лишней не будет, это я тебе обещаю.
+
+у потоков есть свой обработчик исключений. Взглянем на пример:
+
+public static void main(String []args) {
+	Thread th = Thread.currentThread();
+	th.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+		@Override
+		public void uncaughtException(Thread t, Throwable e) {
+			System.out.println("Возникла ошибка: " + e.getMessage());
+		}
+	});
+    System.out.println(2/0);
+}
+

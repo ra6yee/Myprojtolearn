@@ -1,0 +1,392 @@
+                                           Method local inner classes
+
+Локальный класс объявляется только в блоке кода. Чаще всего — внутри какого-то метода внешнего класса.
+
+Например, это может выглядеть так:
+
+public class PhoneNumberValidator {
+
+   public void validatePhoneNumber(String number) {
+
+        class PhoneNumber {  внутренний класс в локальном методе
+
+           private String phoneNumber;
+
+           public PhoneNumber() {
+               this.phoneNumber = number;
+           }
+
+           public String getPhoneNumber() {
+               return phoneNumber;
+           }
+
+           public void setPhoneNumber(String phoneNumber) {
+               this.phoneNumber = phoneNumber;
+           }
+       }
+
+       //...код валидации номера
+   }
+}
+
+Это небольшая программа — валидатор телефонных номеров.
+
+Ее метод validatePhoneNumber() принимает на вход строку и определяет, является ли она номером телефона.
+
+И внутри этого метода мы объявили наш локальный класс PhoneNumber.
+
+У тебя мог возникнуть логичный вопрос: зачем? Зачем объявлять класс именно внутри метода? Почему не использовать обычный
+внутренний класс?
+
+Действительно, можно было бы поступить и так: сделать класс PhoneNumber внутренним.
+
+Другое дело, что итоговое решение зависит от структуры и предназначения твоей программы.
+
+Давай вспомним наш пример из лекции про внутренние классы:
+
+public class Bicycle {
+
+   private String model;
+   private int mawWeight;
+
+   public Bicycle(String model, int mawWeight) {
+       this.model = model;
+       this.mawWeight = mawWeight;
+   }
+
+   public void start() {
+       System.out.println("Поехали!");
+   }
+
+   public class HandleBar {
+
+       public void right() {
+           System.out.println("Руль вправо!");
+       }
+
+       public void left() {
+
+           System.out.println("Руль влево!");
+       }
+   }
+}
+
+В нем мы сделали HandleBar (руль) внутренним классом велосипеда.
+
+В чем же разница? Прежде всего, в использовании класса.
+
+Класс HandleBar из второго примера — сущность более сложная, чем PhoneNumber из первого.
+
+Во-первых, у HandleBar есть публичные методы right и left (не являются сеттером и геттером). Во-вторых, нельзя заранее
+предположить, где он и его внешний класс Bicycle могут нам понадобиться — это могут быть десятки разных мест и методов
+даже в рамках одной программы.
+
+А вот с классом PhoneNumber все гораздо проще. Программа у нас совсем простая. У нее всего одна функция — проверить,
+ является ли число номером телефона.
+
+В большинстве случаев наш PhoneNumberValidator будет даже не самостоятельной программой, а просто частью в логике
+авторизации для основной программы.
+
+Иными словами, у нас есть один внешний класс с одним методом, который будет использован в одном месте программы и
+больше нигде. А если и будет, то в нем ничего не изменится: один метод делает свою работу — и все.
+
+В этом случае, раз уж вся логика работы собрана в одном методе, будет гораздо удобнее и правильнее инкапсулировать там и
+ дополнительный класс.
+
+Своих методов, кроме геттера и сеттера, у него нет. Нам, по сути, нужны только данные из него конструктора.
+
+В других методах он не задействован. Поэтому нет причин выносить информацию о нем за пределы единственного метода, где
+он используется.
+
+Мы и привели пример с объявлением локального класса в методе, но это не единственная возможность.
+
+Его можно объявить просто в блоке кода:
+
+public class PhoneNumberValidator {
+
+   {
+       class PhoneNumber {
+
+           private String phoneNumber;
+
+           public PhoneNumber(String phoneNumber) {
+               this.phoneNumber = phoneNumber;
+           }
+       }
+
+   }
+
+   public void validatePhoneNumber(String phoneNumber) {
+
+
+       //...код валидации номера
+   }
+}
+
+Или даже в цикле for!
+
+public class PhoneNumberValidator {
+
+
+   public void validatePhoneNumber(String phoneNumber) {
+
+       for (int i = 0; i < 10; i++) {
+
+           class PhoneNumber {
+
+               private String phoneNumber;
+
+               public PhoneNumber(String phoneNumber) {
+                   this.phoneNumber = phoneNumber;
+               }
+           }
+
+           //...какая-то логика
+       }
+
+       //...код валидации номера
+   }
+}
+
+Но такие случае крайне редко встречаются. В большинстве случаев объявление будет происходить все же внутри метода.
+
+Итак, с объявлением мы разобрались, про «философию» тоже поговорили :)
+
+Какие же у локальных классов есть еще особенности и отличия от внутренних классов?
+\\\\\\\\
+Объект локального класса не может создаваться за пределами метода или блока, в котором его объявили.
+
+Представь, что нам нужен метод generatePhoneNumber(), который бы генерировал случайный номер телефона и возвращал объект PhoneNumber.
+
+Мы не сможем создать такой метод в нашем классе-валидаторе в текущей ситуации:
+
+public class PhoneNumberValidator {
+
+   public void validatePhoneNumber(String number) {
+
+        class PhoneNumber {
+
+           private String phoneNumber;
+
+           public PhoneNumber() {
+               this.phoneNumber = number;
+           }
+
+           public String getPhoneNumber() {
+               return phoneNumber;
+           }
+
+           public void setPhoneNumber(String phoneNumber) {
+               this.phoneNumber = phoneNumber;
+           }
+       }
+
+       //...код валидации номера
+   }
+
+   //ошибка! компилятор не понимает, что это за класс - PhoneNumber
+   public PhoneNumber generatePhoneNumber() {
+
+   }
+
+}
+
+Еще одна важная особенность локальных классов — возможность доступа к локальным переменным и параметрам метода.
+
+Если ты вдруг забыл, «локальной» называют переменную, объявленную внутри метода.
+
+То есть, если мы создадим для каких-то своих целей локальную переменную String russianCountryCode внутри метода
+validatePhoneNumber(), мы можем получить к ней доступ из локального класса PhoneNumber.
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ лишнее!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Однако, здесь есть очень много тонкостей, которые зависят от версии языка, используемого в программе.
+
+В начале лекции мы сделали отметку о том, что код одного из примеров может не компилироваться в Java 7, помнишь? Сейчас рассмотрим причины этого :)
+
+В Java 7 локальный класс может получить доступ к локальной переменной или параметру метода, только если они объявлены в методе как final:
+
+public void validatePhoneNumber(String number) {
+
+   String russianCountryCode = "+7";
+
+   class PhoneNumber {
+
+       private String phoneNumber;
+
+       //ошибка! параметр метода должен быть объявлен как final!
+       public PhoneNumber() {
+           this.phoneNumber = number;
+       }
+
+       public void printRussianCountryCode() {
+
+           //ошибка! локальная переменная должна быть объявлена как final!
+           System.out.println(russianCountryCode);
+       }
+
+   }
+
+   //...код валидации номера
+}
+
+Здесь компилятор выбросил две ошибки.
+
+А вот здесь все в порядке:
+
+public void validatePhoneNumber(final String number) {
+
+   final String russianCountryCode = "+7";
+
+    class PhoneNumber {
+
+       private String phoneNumber;
+
+
+       public PhoneNumber() {
+           this.phoneNumber = number;
+       }
+
+       public void printRussianCountryCode() {
+
+           System.out.println(russianCountryCode);
+       }
+
+    }
+
+   //...код валидации номера
+}
+
+Теперь ты знаешь причину, по которой код из начала лекции не компилировался: локальный класс в версии Java 7 имеет
+ доступ только к final-параметрам метода и к final-локальным переменным.
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+В Java 8 поведение локальных классов было изменено.
+
+В этой версии языка локальный класс имеет доступ не только к final-локальным переменным и параметрам, но и к
+effective-final.
+
+Effective-final называют переменную, значение которой не менялось после инициализации.
+
+Например, в Java 8 мы без проблем можем вывести в консоль переменную russianCountryCode, даже если она — не final.
+Главное, чтобы она не меняла своего значения.
+
+Вот в этом примере все работает как надо:
+
+public void validatePhoneNumber(String number) {
+
+  String russianCountryCode = "+7";
+
+    class PhoneNumber {
+
+       public void printRussianCountryCode() {
+
+           //в Java 7 здесь была бы ошибка
+           System.out.println(russianCountryCode);
+       }
+
+    }
+
+   //...код валидации номера
+}
+
+А вот если мы изменим значение переменной сразу после инициализации, код не скомпилируется.
+
+public void validatePhoneNumber(String number) {
+
+  String russianCountryCode = "+7";
+  russianCountryCode = "+8";
+
+    class PhoneNumber {
+
+       public void printRussianCountryCode() {
+
+           //ошибка!
+           System.out.println(russianCountryCode);
+       }
+
+    }
+
+   //...код валидации номера
+}
+
+Но недаром локальный класс — подвид внутреннего класса! У них есть и общие моменты.
+
+У локального класса есть доступ ко всем (даже приватным) полям и методам внешнего класса: и к статическим, и к
+нестатическим.
+
+Для примера, добавим к нашему классу-валидатору статическое поле String phoneNumberRegex:
+
+public class PhoneNumberValidator {
+
+   private static String phoneNumberRegex = "[^0-9]";
+
+   public void validatePhoneNumber(String phoneNumber) {
+       class PhoneNumber {
+
+           //......
+       }
+   }
+}
+
+С помощью этой статической переменной и будет выполняться валидация. Метод проверяет, есть ли строке, которую ему
+передали, символы, не соответствующие регулярному выражению "[^0-9]" (то есть, символ не является цифрой от 0 до 9).
+
+Мы легко можем получить доступ к этой переменной из локального класса PhoneNumber. Например, написать геттер:
+
+public String getPhoneNumberRegex() {
+
+   return phoneNumberRegex;
+}
+
+Локальные классы похожи на внутренние классы, потому что они не могут определять или объявлять какие-либо статические
+члены. Локальные классы в статических методах могут ссылаться только на статические члены включающего класса.
+
+Например, если ты не определил переменную (поле) включающего класса как статическую, компилятор Java генерирует ошибку:
+ «Из статического контекста нельзя ссылаться на нестатическую переменную». Локальные классы не статичные, потому что у
+ них есть доступ к членам экземпляра вмещающего блока. Следовательно, они не могут содержать большинство видов
+ статических объявлений.
+
+Нельзя объявить интерфейс внутри блока; интерфейсы по своей природе статичны. Этот код не скомпилируется:
+
+public class PhoneNumberValidator {
+   public static void validatePhoneNumber(String number) {
+       interface I {}
+
+       class PhoneNumber implements I{
+           private String phoneNumber;
+
+           public PhoneNumber() {
+               this.phoneNumber = number;
+           }
+       }
+
+       //...код валидации номера
+   }
+}
+
+Но если интерфейс объявлен внутри внешнего класса, класс PhoneNumber может его реализовать:
+
+public class PhoneNumberValidator {
+   interface I {}
+
+   public static void validatePhoneNumber(String number) {
+
+       class PhoneNumber implements I{
+           private String phoneNumber;
+
+           public PhoneNumber() {
+               this.phoneNumber = number;
+           }
+       }
+
+       //...код валидации номера
+   }
+}
+
+В локальных классах нельзя объявлять статические инициализаторы (блоки инициализации) или интерфейсы. Но у локальных
+ классов могут быть статические члены при условии, что они постоянные переменные (static final).
+
+Вот такие они, локальные классы! Как видишь, у них немало отличий от внутренних классов. Нам даже пришлось погрузиться
+в особенности версии языка, чтобы разобраться в их работе :)
+
+
+
+
