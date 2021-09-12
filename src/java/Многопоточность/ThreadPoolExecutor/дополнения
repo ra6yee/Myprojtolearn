@@ -1,0 +1,28 @@
+Задавался вопросом: В чем разница execute(Runnable r) и submit(Runnable r)?
+Нашел ответ:
+ - submit(Runnable r) - Возвращает объект Future, который можно использовать
+для проверки результата отправленной задачи.
+Может использоваться для отмены или для проверки isDone и т.д.
+ - execute(Runnable r) - ничего не возвращает.
+Дополнительно: Разница в том, что execute просто запускает задачу
+без каких-либо дополнительных атак, тогда как submit возвращает объект
+Future для управления задачей. Вы можете сделать следующее с объектом Future:
+
+Отменить задачу преждевременно, используя метод cancel.
+Дождитесь завершения выполнения задачи с помощью get.
+Интерфейс Future более полезен, если отправить пул Callable в пул.
+Возвращаемое значение метода call будет возвращено при вызове Future.get.
+Если вы не поддерживаете ссылку на Future, нет никакой разницы.
+
+Надеюсь кому-то пригодится...
+1. есть конструктор для ThreadPoolExecutor
+(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue)
+2. обратим внимание на workQueue
+3. BlockingQueue<Runnable> workQueue = new LinkedBlockingQueue (int capacity);
+4. если мы превысим количество задач в очереди (capacity) - получим
+java.lang.IllegalStateException: Queue full
+
+
+
+
+

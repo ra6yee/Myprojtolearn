@@ -1,0 +1,9 @@
+women.sort((a, b) -> { /*something code*/ });
+
+
+эффективный способ сортировки в обратном порядке, когда есть готовый givenCompаrator
+Collections.sort(myCollection, givenCompаrator.reversed());
+
+Collections.sort(women, (o1, o2) -> {
+return o1.height - o2.height;
+});
