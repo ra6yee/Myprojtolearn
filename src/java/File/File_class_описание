@@ -8,7 +8,7 @@
 File file = new File("c:/path/a.txt");
 FileInputStream input = new FileInputStream(file);
 
-Вывод всех файлов и определенной директории:
+Вывод всех файлов в определенной директории:
 
 File folder = new File("c:/path/");
 for (File file : folder.listFiles())

@@ -1,0 +1,67 @@
+Файл data.properties
+directory=c:/text/downloads
+email=zapp@javarush.ru
+
+Слева от знака равно – имя (ключ), справа – значение.
+
+— Т.е. это что-то типа текстового представления HashMap?
+
+— В общем-то, да.
+
+Для удобной работы с такими файлами в Java есть специальный класс – Properties. Класс Properties унаследован от
+Hashtable<Object,Object>. Его даже можно рассматривать как HashTable, который умеет загружать себя из файла.
+
+Вот его методы:
+
+Метод	Описание
+void load(Reader reader)	Загружает свойства из файла, представленного объектом Reader
+void load(InputStream inStream)	Загружает свойства из файла, представленного объектом InputStream
+void loadFromXML(InputStream in)	Загружает свойства из XML-файла
+Object get(Object key)	Возвращает значение по ключу. Метод унаследован от HashTable
+String getProperty(String key)	Возвращает значение свойства (строку) по ключу
+String getProperty(String key, String defaultValue)	Возвращает значение свойства по ключу или defaultValue, если такого
+ ключа нет
+Set<String> stringPropertyNames()	Возвращает список всех ключей
+Т.е. фактически тебе нужно выполнить всего две операции – загрузить в объект Properties данные из какого-нибудь файла,
+ а затем получить эти свойства с помощью метода getProperty(). Ну и не забывай, что можешь пользоваться объектом
+ Properties как HashMap.
+
+Вот тебе пример:
+
+Код
+//файл, который хранит свойства нашего проекта
+File file = new File("c:/data.properties");
+
+//создаем объект Properties и загружаем в него данные из файла.
+Properties properties = new Properties();
+properties.load(new FileReader(file));
+
+//получаем значения свойств из объекта Properties
+String email = properties.getProperty("email");
+String directory = properties.getProperty("directory");
+
+//получаем числовое значение из объекта Properties
+int maxFileSize = Integer.parseInt(properties.getProperty("max.size", "10000"));
+— Ага. Т.е. мы создаем объект Properties, затем передаем в него файл. В метод load, а затем просто вызываем getProperty.
+ Так?
+
+— Ага.
+
+— А ты еще говорил, что им можно пользоваться как HashMap? Что ты имел в виду?
+
+— Класс Properties унаследован от Hashtable, а это – тот же HashMap, просто все методы его синхронизированы.
+Вот так можно просто вывести на экран все значения из файла свойств:
+
+Код
+//получаем файл со свойствами
+File file = new File("c:/data.properties");
+
+//создаем объект Properties и загружаем в него данные из файла.
+Properties properties = new Properties();
+properties.load(new FileReader(file));
+
+//проходимся по всем ключам и печатаем все их значения на консоль
+for (String key : properties.stringPropertyNames())
+{
+ System.out.println(properties.get(key));
+}

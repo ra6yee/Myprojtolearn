@@ -1,0 +1,121 @@
+ZipInputStream и ZipOutputStream
+
+Эти потоки предназначены для работы с файлами, которые являются zip-архивами. С помощью них можно что-то читать прямо
+из zip-фала или писать в него!
+
+— Ух ты! Как интересно. Но ведь в zip-архиве может быть не один файл, как же они работают?
+
+— А для этого есть еще один специальный класс – ZipEntry. Он представляет файл, хрянящийся в архиве. Из ZipInputStream
+ можно читать только объекты типа ZipEntry, а в ZipOutputStream можно писать только объекты ZipEntry. А вот сами
+ ZipEntry как раз можно читать и писать как обычные файлы.
+
+— А можно пример, как это работает?
+
+— Конечно, вот пример, где мы создаем архив и кладем в него файл:
+
+Код
+// создаем архив
+FileOutputStream zipFile = new FileOutputStream("c:/archive.zip");
+ZipOutputStream zip = new ZipOutputStream(zipFile);
+
+//кладем в него ZipEntry – «архивный объект»
+zip.putNextEntry(new ZipEntry("document.txt"));
+
+//копируем файл «document-for-archive.txt» в архив под именем «document.txt»
+File file = new File("c:/document-for-archive.txt");
+Files.copy(file.toPath(), zip);
+
+// закрываем архив
+zip.close();
+— Как интересно. А разархивировать файлы так же легко?
+
+— Ага. Вот тебе краткое описание методов классов ZipEntry, ZipInputStream и ZipOutputStream
+
+ZipInputStream – это поток, поэтому все ZipEntry могут быть прочитаны только последовательно. Вот его методы:
+
+Метод	Описание
+ZipEntry getNextEntry()	Возвращает объект, описывающий следующий ZipEntry (пропускает все байты текущего entry).
+void closeEntry()	Закрывает чтение текущего ZipEntry (пропускает все байты текущего entry).
+int available()	Возвращает 1, если есть доступные ZipEntry, иначе 0.
+int read(byte[] b, int off, int len)	Читает байты из текущего ZipEntry.
+long skip(long n)	Пропускает n байт при чтении из потока.
+void close()	Закрывает поток.
+— Не очень понятно.
+
+— Лучше всего — это представить, что ты читаешь текстовый файл, а ZipEntry – это строки в нем. Можно читать как данные
+текущей строки – текущий ZipEntry, так и прыгать по строкам – getNextEntry, closeEntry.
+
+— Вроде понятно, хотя не уверен, что правильно.
+
+— ZipOutputStream и его методы:
+
+Метод	Описание
+void setComment(String comment)	Устанавливает комментарий к архиву.
+void setMethod(int method)	Указывает метод (тип) сжатия.
+void setLevel(int level)	Указывает степень сжатия. Чем сильнее, тем медленнее.
+void putNextEntry(ZipEntry e)	Добавляет новый ZipEntry.
+void closeEntry()	Закрывает текущий ZipEntry.
+void write(byte[] b, int off, int len)	Пишет набор байт в текущий ZipEntry.
+void close()	Закрывает поток.
+— А мы же в примере выше почти ничего этого не использовали.
+
+— Это необязательные методы. Можно не указывать степень и метод сжатия, тогда будут использованы настройки по умолчанию.
+
+— Гм. Тоже не плохо. А ZipEntry?
+
+— Ага. В ZipEntry дополнительно хранится только служебная информация:
+
+Метод	Описание
+String getName()	Внутреннее имя файла.
+long getTime(), setTime(long)	Время последней модификации entry.
+long getCrc(), setCrc(long)	Контрольная сумма.
+long getSize(), setSize(long)	Размер до компрессии.
+int getMethod(), setMethod(int)	Метод сжатия.
+long get/setCompressedSize()	Размер после архивации.
+boolean isDirectory()	Является ли entry директорией.
+
+public class Program {
+    public static void main(String[] args) throws IOException {
+
+        try (ZipOutputStream zouts = new ZipOutputStream(new FileOutputStream("text2_zip.zip"));
+            FileInputStream fis = new FileInputStream("text2.txt")
+        ){
+            ZipEntry entry1 = new ZipEntry("notes1.txt");
+            zouts.putNextEntry(entry1);
+
+            byte [] buffer = new byte[fis.available()];
+            fis.read(buffer);
+
+            zouts.write(buffer);
+            zouts.closeEntry();
+
+        } catch(Exception ex){System.out.println(ex.getMessage());}
+
+        try(ZipInputStream zin = new ZipInputStream(new FileInputStream("text2_zip.zip")))
+        {
+            ZipEntry entry;
+            String name;   long size;
+
+            while((entry=zin.getNextEntry())!=null){
+                name=entry.getName();
+                size= entry.getSize();
+                System.out.printf("File name: %s \t File size: %d \n", name, size);
+
+                for (int c=zin.read(); c!=-1; c = zin.read()){
+                    System.out.print((char)c);  }
+                zin.closeEntry();
+            }
+        }
+    }
+}
+
+Как добавить директорию в архив?
+try(ZipOutputStream out = new ZipOutputStream(new FileOutputStream("c:/archive.zip"))){
+     out.putNextEntry(new ZipEntry("myfolder/"));
+} catch (IOException e){
+     e.printStackTrace();
+}
+
+
+Весь секрет в параметре конструктора ZipEntry. Если хотите добавить папку, то добавьте в конце "/". Иначе в архив будет добавлен файл.
+

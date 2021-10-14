@@ -1,0 +1,17 @@
+методы FileInputStream:
+
+int read()	Читает один байт и возвращает его.
+int read(byte b[])	Читает массив байт, возвращает количество.
+int read(byte b[], int off, int len)	Читает из потока массив байт.
+long skip(long n)	Пропускает n байт, используется при чтении из потока.
+int available()	Возвращает количество байт, которое еще можно прочитать из потока.
+void close()	Закрывает поток.
+
+
+методы FileOutputStream
+
+void write(int b)	Записывает один байт в поток.
+void write(byte b[])	Записывает массив байт в поток.
+void write(byte b[], int off, int len)	Записывает массив байт в поток.
+void close()	Закрывает поток.
+
