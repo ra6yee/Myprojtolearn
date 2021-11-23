@@ -1,0 +1,213 @@
+JAXB – это отличный многофункциональный фреймворк для работы с XML.
+
+JAXB – это часть JDK, поэтому скачивать его отдельно не требуется.
+
+Давай я сначала покажу тебе пример работы с ним, а после мы его разберем. Пример:
+
+Конвертация объекта в XML
+
+public static void main(String[] args) throws JAXBException
+{
+ //создание объекта для сериализации в XML
+ Cat cat = new Cat();
+ cat.name = "Murka";
+ cat.age = 5;
+ cat.weight = 4;
+
+ //писать результат сериализации будем в Writer(StringWriter)
+ StringWriter writer = new StringWriter();
+
+ //создание объекта Marshaller, который выполняет сериализацию
+ JAXBContext context = JAXBContext.newInstance(Cat.class);
+ Marshaller marshaller = context.createMarshaller();
+ marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+ // сама сериализация
+ marshaller.marshal(cat, writer);
+
+ //преобразовываем в строку все записанное в StringWriter
+ String result = writer.toString();
+ System.out.println(result);
+}
+Класс, объект которого конвертирует в XML
+@XmlType(name = "cat")
+@XmlRootElement
+public class Cat
+{
+ public String name;
+ public int age;
+ public int weight;
+
+ public Cat()
+ {
+ }
+}
+Результат сериализации и вывода на экран:
+<cat>
+<name>Murka</name>
+<age>5</age>
+<weight>4</weight>
+</cat>
+— Что-то мне этот код один в один напоминает сериализацию в JSON. Тоже аннотации, но там был ObjectMapper, тут
+ Context & Marshaller.
+
+— Ага. Действительно они очень похожи. Jackson писался по образцу JAXB. Но и JAXB то же с кого-то списали. Нельзя
+выдумать нечто гениальное на пустом месте.
+
+— Похоже на то.
+
+— Ок, вот что там происходит:
+
+В строках 5-8 мы создаем объект класса Cat и заполняем его данными.
+
+Строка 11 – создаем объект Writer для записи результата.
+
+Стока 14 – создаем «контекст». Это аналог ObjectMapper, но от него потом создаются еще два дочерних объекта
+Marshaller – для сериализации, и Unmarshaller для десериализации. Небольшие отличия от Jackson, но – непринципиально.
+
+Строка 15 – создаем объект Marshaller. Маршалинг – это синоним слова сериализация.
+
+Строка 16 – устанавливает свойство FORMATTED_OUTPUT в TRUE. В результат будут добавлены переносы строки и пробелы,
+чтобы код был читабельным для человека, а не весь текст в одну строку.
+
+Строка 18 – сериализация объекта.
+
+Строки 21-22 – вывод результата сериализации на экран.
+
+— А что это еще за аннотации @XmlType(name = «cat») и @XmlRootElement?
+
+— @XmlRootElement указывает на то, что этот объект может быть «корнем дерева» элементов в XML. Т.е. быть элементом
+самого верхнего уровня, все остальные элементы лежат в нем.
+
+@XmlType(name = «cat») указывает на то, что класс участвует в JAXB сериализации, в ней же задано имя, которое будет у
+ XML-тега для этого класса.
+
+Ладно, давай теперь покажу пример десериализации из XML:
+
+Конвертация объекта из XML
+public static void main(String[] args) throws JAXBException
+{
+ String xmldata = "<cat><name>Murka</name><age>5</age><weight>4</weight></cat>"";
+ StringReader reader = new StringReader(xmldata);
+
+ JAXBContext context = JAXBContext.newInstance(Cat.class);
+ Unmarshaller unmarshaller = context.createUnmarshaller();
+
+ Cat cat = (Cat) unmarshaller.unmarshal(reader);
+}
+Класс, объект которого десериализуется из XML
+@XmlType(name = "cat")
+@XmlRootElement
+public class Cat
+{
+ public String name;
+ public int age;
+ public int weight;
+
+ public Cat()
+ {
+ }
+}
+Все практически аналогично случаю с Jackson. Но на всякий случай объясню все, что тут происходит.
+
+Строка 3 – задаем строку, которая хранит xml для десериализации.
+
+Строка 4 – оборачиваем xml-строку в StringReader.
+
+Строка 6 – создаем JAXB-контекст, куда передаем список классов.
+
+Строка 7 — создаем Unmarshaller – объект, который будет выполнять десериализацию.
+
+Строка 9 – десериализуем xml из объекта reader и получаем объект cat типа Cat.
+
+— Отлично. Тогда вот тебе список аннотаций, которые ты можешь использовать, чтобы управлять результатом JAXB сериализации:
+
+
+@XmlElement(name)	Ставится около поля.
+Поле будет представлено в XML-элементом.
+Позволяет задать имя для тэга.
+@XmlAttribute(name)	Ставится около поля.
+Поле будет представлено в XML-атрибутом!
+Позволяет задать имя для атрибута.
+@XmlElementWrapper(nillable = true)	Ставится около поля.
+Позволяет задать «обрамляющий тег» для группы элементов.
+@XmlType	Ставится около класса.
+Позволяет задать метод для создания объекта, если конструктор по умолчанию private.
+@XmlJavaTypeAdapter	Ставится около поля.
+Позволяет задать класс, который будет преобразовывать данные поля в строку.
+— Как интересно. А можно примеры с этими аннотациями, а то написанное – это одно, а живой пример – это совсем другое.
+
+— Ок. Будет тебе пример. Хотел только добавить, то JAXB позволяет ставить аннотации у методов getter/setter вместо полей.
+
+Обещанный пример:
+
+Конвертация объекта в XML
+public static void main(String[] args) throws JAXBException
+{
+ //создание объектов Cat&Zoo для сериализации в XML
+ Cat cat = new Cat();
+ cat.name = "Murka";
+ cat.age = 5;
+ cat.weight = 4;
+
+ Zoo zoo = new Zoo();
+ zoo.animals.add(cat);
+ zoo.animals.add(cat);
+
+ //писать результат сериализации будем во Writer(StringWriter)
+ StringWriter writer = new StringWriter();
+
+ //создание объекта Marshaller, который выполняет сериализацию
+ JAXBContext context = JAXBContext.newInstance(Cat.class, Zoo.class);
+ Marshaller marshaller = context.createMarshaller();
+ marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+ // самосериализация
+ marshaller.marshal(zoo, writer);
+
+ //преобразовываем все записанное в StringWriter в строку
+ System.out.println(writer.toString());
+}
+Класс, объект которого конвертирует в XML
+@XmlType(name = "zoo")
+@XmlRootElement
+public class Zoo
+{
+ @XmlElementWrapper(name="wild-animals", nillable = true)
+ @XmlElement(name = "tiger")
+ public List animals = new ArrayList<>();
+}
+
+public class Cat
+{
+ @XmlElement(name = "catname")
+ public String name;
+ @XmlAttribute(name = "age")
+ public int age;
+ @XmlAttribute(name = "w")
+ public int weight;
+
+ public Cat()
+ {
+ }
+}
+Результат сериализации и вывода на экран:
+<zoo>
+<wild-animals>
+<tiger age="5" w="4">
+<catname>Murka</catname>
+</tiger>
+<tiger age="5" w="4">
+<catname>Murka</catname>
+</tiger>
+</wild-animals>
+</zoo>
+Обрати внимание: в этот раз мы сериализуем не объект Cat, а объект типа Zoo, которых хранит коллекцию объектов Cat.
+
+Объект cat в коллекцию был добавлен дважды, поэтому он 2 раза в XML.
+
+У коллекции есть свой тег – «wild-animals» , который обрамляет все элементы коллекции.
+
+Элементы age & weight стали атрибутами age & w.
+
+С помощью атрибута @XmlElement мы поменяли тэг cat на tiger.
+
+Обрати еще внимание на строку 17, теперь мы передаем в JAXB-контекст два класса – Zoo & Cat, т.к. они оба участвуют в сериализации.

@@ -1,0 +1,119 @@
+Шаблон, расширяющий функциональность класса.Но работает только с методами, указанными в интерфейсе.
+Получается как бы сокрытие, что ли, оригинальных методов.При вызове метода, сначала отработается логика прокси.
+Как пример, имеет сотню методов, но каждый метод имеет право выполнять только залогиненый пользователь.Что бы не писать
+в каждом методе логику проверки на логин, пишут прокси, который в каждом методе будет это проверять.Или если класс с
+методами зашит в библиотеку.И его там непосредственно не расширить.Это можно сделать через прокси.Три шаблона для этого
+есть: адаптер, декоратор, прокси.
+Но и разница у них в деталях.Табличку приложу или дополню это описание.
+
+В Java есть специальный класс (java.lang.reflect.Proxy), с помощью которого фактически можно сконструировать объект
+во время исполнения программы (динамически), не создавая для него отдельного класса.
+
+Это делается очень просто:
+
+Reader reader = (Reader)Proxy.newProxyInstance();
+ Но, нам ведь не нужен просто объект без методов. Надо чтобы у этого объекта были методы, и они делали то, что нам нужно.
+  Для этого в Java используется специальный интерфейс InvocationHandler, с помощью которого можно перехватывать все
+  вызовы методов, обращенные к proxy-объекту. proxy-объект можно создать только используя интерфейсы.
+
+Invoke – стандартное название для метода/класса, основная задача которого просто вызвать какой-то метод.
+
+Handler – стандартное название для класса, который обрабатывает какое-то событие. Например, обработчик клика мышки будет
+ называться MouseClickHandler, и т.д.
+
+У интерфейса InvocationHandler есть единственный метод invoke, в который направляются все вызовы, обращенные к
+proxy-объекту. Пример:
+
+Код
+Reader reader = (Reader)Proxy.newProxyInstance(new CustomInvocationHandler());
+reader.close();
+class CustomInvocationHandler implements InvocationHandler
+{
+ public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
+ {
+  System.out.println("yes!");
+  return null;
+ }
+}
+При вызове метода reader.close(), вызовется метод invoke, и на экран будет выведена надпись “yes!”
+
+— Т.е. мы объявили класс CustomInvocationHandler, в нем реализовали интерфейс InvocationHandler и его метод invoke.
+Метод invoke при вызове выводит на экран строку “yes!”- Затем мы создали объект типа CustomInvocationHandler и передали
+ его в метод newProxyInstance при создании объекта-proxy.
+
+— Да, все верно.
+
+Это очень мощный инструмент, обычно создание таких прокси используется для имитации объектов из программ, которые
+физически запущены на другом компьютере. Или для контроля доступа
+
+– в таком методе можно проверять права текущего пользователя, обрабатывать ошибки, логировать ошибки и многое другое.
+
+Вот пример, где метод invoke еще и вызывает методы оригинального объекта:
+
+Код
+Reader original = new UserCustomReader();
+
+Reader reader = (Reader)Proxy.newProxyInstance(new CustomInvocationHandler(original));
+reader.close();
+class CustomInvocationHandler implements InvocationHandler
+{
+ private Reader readerOriginal;
+
+ CustomInvocationHandler(Reader readerOriginal)
+ {
+  this.readerOriginal = readerOriginal;
+ }
+
+ public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
+ {
+  if (method.getName().equals("close"))
+  {
+   System.out.println("Reader closed!");
+  }
+
+  // это вызов метода close у объекта readerOriginal
+  // имя метода и описание его параметров хранится в переменной method
+  return method.invoke(readerOriginal, args);
+ }
+}
+В данном примере есть две особенности.
+
+Во-первых, в конструктор передается «оригинальный» объект Reader, ссылка на который сохраняется внутри CustomInvocationHandler.
+
+Во-вторых, в методе invoke мы снова вызываем этот же метод, но уже у «оригинального» объекта.
+
+— Ага. Т.е. вот эта последняя строчка и есть вызов того же самого метода, но уже у оригинального объекта:
+
+return method.invoke(readerOriginal, args);
+— Ага.
+
+— Не сказал бы, что слишком очевидно, но все же понятно. Вроде бы.
+
+— Отлично. Тогда вот еще что. В метод newProxyInstance нужно передавать еще немного служебной информации для создания
+proxy-объекта. Но, т.к. мы не создаем монструозные прокси-объекты, то эту информацию легко получить из
+самого оригинального класса.
+
+Вот тебе пример:
+
+Код
+Reader original = new UserCustomReader();
+
+ClassLoader classLoader = original.getClass().getClassLoader();
+Class<?>[] interfaces = original.getClass().getInterfaces();
+CustomInvocationHandler invocationHandler = new CustomInvocationHandler(original);
+
+Reader reader = (Reader)Proxy.newProxyInstance(classLoader, interfaces, invocationHandler);
+class CustomInvocationHandler implements InvocationHandler
+{
+ public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
+ {
+  return null;
+ }
+}
+
+
+
+
+
+
+

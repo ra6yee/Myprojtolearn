@@ -1,0 +1,118 @@
+ StringReader – это, фактически, переходник между классом String и Reader. А StringWriter – это строка, которая
+ унаследована от Writer. М-да. Сама вижу, что объяснение не очень. Давай лучше для начала рассмотрим пару примеров.
+
+Например, ты хочешь проверить, как работает твой метод, который должен вычитывать данные из переданного в него объекта
+ Reader. Вот как это можно сделать:
+
+Чтение из объекта reader:
+public static void main (String[] args) throws Exception
+{
+ String test = "Hi!\n My name is Richard\n I'm a photographer\n";
+
+ //это строчка – ключевая: мы «превратили» строку в Reader
+ StringReader reader = new StringReader(test);
+
+ executor(reader);
+}
+
+public static void executor(Reader reader) throws Exception
+{
+ BufferedReader br = new BufferedReader(reader);
+String line;
+while ((line = br.readLine()) != null)
+ {
+  System.out.println(line);
+ }
+}
+— Т.е. мы просто взяли строку, обернули ее в StringReader и передали вместо объекта Reader? И из нее все будет читаться,
+ как и надо?
+
+— Ага. Гм. А в этом есть смысл. А теперь проверим, как работают методы StringWriter. Для этого усложним пример.
+Теперь он будет не просто читать строки, и выводить их на экран, а разворачивать их задом наперед и выводить в объект
+ writer.
+
+Чтение из объекта reader и запись в объект writer:
+public static void main (String[] args) throws Exception
+{
+ //эту строку должен будет прочитать Reader
+ String test = "Hi!\n My name is Richard\n I'm a photographer\n";
+ //заворачиваем строку в StringReader
+ StringReader reader = new StringReader(test);
+
+ //Создаем объект StringWriter
+ StringWriter writer = new StringWriter();
+
+ //переписываем строки из Reader во Writer, предварительно развернув их
+ executor(reader, writer);
+
+ //получаем текст, который был записан во Writer
+ String result = writer.toString();
+
+ //выводем полученный из Writer’а текст на экран
+ System.out.println("Результат: "+result);
+}
+
+public static void executor(Reader reader, Writer writer) throws Exception
+{
+ BufferedReader br = new BufferedReader(reader);
+String line;
+
+  //читаем строку из Reader’а
+
+while ((line = br.readLine()) != null)
+ {
+  //разворачиваем строку задом наперед
+  StringBuilder sb = new StringBuilder(line);
+  String newLine = sb.reverse().toString();
+
+  //пишем строку в Writer
+  writer.write(newLine);
+ }
+}
+Мы создали объект StringWriter, внутри которого есть строка, в которой хранится все, что в этот writer пишут. А чтобы
+ее получить, надо всего лишь вызвать метод toString().
+
+— Гм. Как-то все слишком просто получается. Метод executor работает с объектами потокового ввода reader и writer,
+а в методе main мы работаем уже со строками.
+
+Все действительно так просто?
+
+— Ага. Чтобы преобразовать строку в Reader достаточно написать:
+
+Создание Reader из String
+String s = "data";
+Reader reader = new StringReader(s);
+А преобразовать StringWriter к строке еще проще:
+
+Получение String из Writer
+Writer writer = new StringWriter();
+/*тут пишем кучу данных во writer */
+String result = writer.toString();
+
+
+
+
+
+Чтение из объекта reader и запись в объект writer:
+public static void main (String[] args) throws Exception
+{
+ String test = "Hi!\n My name is Richard\n I'm a photographer\n";
+ StringReader reader = new StringReader(test);
+
+ StringWriter writer = new StringWriter();
+
+ executor(reader, writer);
+
+ String result = writer.toString();
+
+ System.out.println("Результат: "+result);
+}
+
+public static void executor(Reader reader, Writer writer) throws Exception
+{
+ BufferedReader br = new BufferedReader(reader);
+String line;
+ while ((line = br.readLine()) != null) {
+    writer.write(line + '\n');
+ }
+}

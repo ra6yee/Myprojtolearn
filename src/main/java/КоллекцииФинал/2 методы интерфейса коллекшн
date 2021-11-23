@@ -1,0 +1,21 @@
+Методы интерфейса Collection<E>:
+
+Методы	                                                                         Описание
+boolean add(E e);	                                                   Добавляет элемент в коллекцию
+boolean addAll(Collection<? extends E> c);	                           Добавляет элементы в коллекцию
+void clear();	                                                       Удаляет все элементы из коллекции
+boolean contains(Object o);                                         	Проверяет – есть ли в коллекции элемент?
+boolean containsAll(Collection<?> c);	                               Проверяет – есть ли в коллекции элементы?
+boolean equals(Object o);	                                            Сравнивает коллекции
+int hashCode();	                                                        Возвращает хэш-код
+boolean isEmpty();	                                                    Проверяет – пуста ли коллекция?
+Iterator<E> iterator();	                                                Возвращает объект-итератор
+boolean remove(Object o);	                                            Удаляет элемент из коллекции
+boolean removeAll(Collection<?> c);	                                    Удаляет элементы из коллекции
+boolean retainAll(Collection<?> c);	                                    Удаляет все элементы, которых нет «с»
+int size();	                                                            Возвращает размер коллекции
+Object[] toArray();	                                                    Преобразовывает коллекцию к массиву
+<T> T[] toArray(T[] a);	                                                Преобразовывает коллекцию к массиву
+
+
+

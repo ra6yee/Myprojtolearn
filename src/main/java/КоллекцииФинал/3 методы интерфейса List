@@ -1,0 +1,13 @@
+Методы интерфейса List<E>:
+
+Методы	                                                                          Описание
+void add(int index, E element);	                                            Добавляет элементы в середину коллекции
+boolean addAll(int index, Collection<? extends E> c);	                    Добавляет элементы в коллекцию
+E get(int index);	                                                        Возвращает элемент по номеру
+int indexOf(Object o);	                                                    Возвращает индекс(номер) элемента
+int lastIndexOf(Object o);	                                                Возвращает последний индекс элемента.
+ListIterator<E> listIterator();	                                            Возвращает итератор для списка
+ListIterator<E> listIterator(int index);	                                Возвращает итератор для списка
+E remove(int index);	                                                    Удаляет элемент по индексу
+E set(int index, E element);	                                            Устанавливает новое значение по индексу
+List<E> subList(int fromIndex, int toIndex);	                            Возвращает подколлекцию

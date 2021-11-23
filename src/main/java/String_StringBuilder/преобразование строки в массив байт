@@ -1,0 +1,8 @@
+public static void main (String[] args) throws Exception
+{
+ String test = "Hi!\n My name is Richard\n I'm a photographer\n";
+ byte[] array = test.getBytes();
+
+ String result = new String(array);
+ System.out.println("Результат: "+result);
+}
