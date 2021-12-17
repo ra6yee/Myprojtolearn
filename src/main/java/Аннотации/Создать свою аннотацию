@@ -1,0 +1,130 @@
+— Давай создадим аннотацию @Person, где будем хранить: жизнь, силу, магию, а также параметры атаки и защиты.
+Вот как бы выглядела такая аннотация:
+
+Пример
+@interface Person
+{
+ String name() default "";
+ int live();
+ int strength();
+ int magic() default 0;
+ int attack() default 0;
+ int defense();
+}
+А вот так выглядело бы описание, например, лесного эльфа-мага:
+
+Пример
+@Person(live=100, strength=10, magic=5, attack=20, defense=20)
+class Elf
+{
+ …
+}
+А вот так выглядело бы описание главного злодея:
+
+Пример
+@Person(live=1000, strength=150, magic=250, attack=99, defense=99)
+class EvilMaster
+{
+ …
+}
+
+— Ясно. Чем-то напоминает интерфейсы-маркеры.
+
+— Да, только, во-первых, не приходится ничего наследовать, во вторых, в аннотациях можно хранить дополнительную информацию.
+
+Есть еще несколько аннотаций, которыми помечаются аннотации. Вот они:
+
+Аннотация @Retention указывает, где будет видна наша аннотация: только в исходном коде, еще и после компиляции, будет
+доступна даже во время исполнения программы.
+
+Аннотация @Target указывает, что именно можно пометить этой аннотацией: класс, поле, метод, параметр метода и т.д.
+
+Если мы хотим, чтобы наша аннотация действовала не только на отмеченный ей класс, но и на его наследников, то надо
+пометить ее @Inherited.
+
+Вот как будет выглядеть наша аннотация @Person.
+
+Пример
+@Target(value=ElementType.TYPE)
+@Retention(value=RetentionPolicy.RUNTIME)
+@interface Person
+{
+ String name() default "";
+ int live();
+ int strength();
+ int magic() default 0;
+ int attack() default 0;
+ int defense();
+}
+— Это было очень интересно, спасибо, Риша.
+
+А как работать с этими аннотациями в программе? Как их использовать? Как прочитать их значения?
+
+— Для этого принято использовать Reflection.
+
+Вот как выглядело бы определение того, какой из персонажей сильнее:
+
+Пример
+public boolean fight(Class first, Class second)
+{
+ if (!first.isAnnotationPresent(Person.class))
+  throw new RuntimeException("first param is not game person");
+ if (!second.isAnnotationPresent(Person.class))
+  throw new RuntimeException("second param is not game person");
+
+ Person firstPerson = (Person) first.getAnnotation(Person.class);
+ Person secondPerson = (Person) second.getAnnotation(Person.class);
+
+ int firstAttack = firstPerson.attack() * firstPerson.strength() + firstPerson.magic();
+ int firstPower = firstPerson.live() * firstPerson.defense() * firstAttack;
+
+ int secondAttack = secondPerson.attack() * secondPerson.strength() + secondPerson.magic();
+ int secondPower = secondPerson.live() * secondPerson.defense() * secondAttack;
+
+ return firstPower > secondPower;
+}
+Вот методы класса, которые нам нужны:
+
+
+isAnnotationPresent(Annotation.class)
+Проверяет, если ли у класса нужная аннотация
+
+getAnnotation(Annotation.class)
+Возвращает объект-аннотацию, если такая у класса есть.
+
+Annotation[] getAnnotations()
+Возвращает массив всех аннотаций класса
+
+— Отлично. А я и не думал, что получить аннотацию так просто.
+
+— Ага. Просто вызвал метод getAnnotation у объекта класса, и передал туда нужный тебе тип аннотации.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

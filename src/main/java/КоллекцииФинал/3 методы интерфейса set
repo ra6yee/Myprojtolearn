@@ -3,3 +3,64 @@
 Методы	Описание
 нет методов
 Интерфейс Set не содержит новых методов, только унаследованные.
+
+
+TreeSet<String> set = new TreeSet<String>();
+Iterator<String> iterator = set.iterator();
+
+while (iterator.hasNext())
+{
+ String item = iterator.next();
+ System.out.println(item);
+}
+
+TreeSet<String> set = new TreeSet<String>();
+
+for(String item : set)
+{
+ System.out.println(item);
+}
+
+Цикл for-each можно использовать для любых объектов, которые поддерживают итератор. Т.е. ты можешь написать свой класс,
+добавить ему метод iterator() и сможешь использовать его объекты в правой части конструкции for-each.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

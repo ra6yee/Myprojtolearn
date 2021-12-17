@@ -1,0 +1,91 @@
+Аннотацией @Target указывается, какой элемент программы будет использоваться аннотацией. Так, в примере эта аннотация
+имеет тип ElementType.TYPE, что означает что она может быть объявлена перед классом, интерфейсом или enum.
+Объявление @Target в любых других местах программы будет воспринято компилятором как ошибка.
+
+
+package com.seostella.annotation.def;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.lang.annotation.ElementType;
+
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Mammal {
+	String sound();
+
+	int color();
+}
+
+Остальные возможные типы аннотации @Target:
+
+PACKAGE - назначением является целый пакет (package);
+TYPE - класс, интерфейс, enum или другая аннотация:
+METHOD - метод класса, но не конструктор (для конструкторов есть отдельный тип CONSTRUCTOR);
+PARAMETER - параметр метода;
+CONSTRUCTOR - конструктор;
+FIELD - поля-свойства класса;
+LOCAL_VARIABLE - локальная переменная (обратите внимание, что аннотация не может быть прочитана во время выполнения
+программы, то есть, данный тип аннотации может использоваться только на уровне компиляции как, например,
+аннотация @SuppressWarnings);
+
+ANNOTATION_TYPE - другая аннотация.
+Также есть возможность задать сразу несколько типов аннотации. Например:
+
+
+@Target({ElementType.CONSTRUCTOR, ElementType.METHOD})
+
+Ниже примеры для каждого типа аннотации:
+
+PACKAGE - назначением является целый пакет (package):
+
+
+@Annotation
+package org.company.package;
+
+TYPE - класс, интерфейс, enum или другая аннотация:
+
+
+@Annotation
+public class MyClass {}
+
+METHOD - метод класса, но не конструктор (для конструкторов есть отдельный тип CONSTRUCTOR):
+
+
+@Annotation
+public void method() {}
+
+PARAMETER - параметр метода:
+
+
+public void method(@Annotation String param) {..}
+
+CONSTRUCTOR - конструктор:
+
+
+public class MyClass {
+    @Annotation
+    public MyClass() {..}
+}
+
+FIELD - поля-свойства класса:
+
+
+@Annotation
+private String classField;
+
+LOCAL_VARIABLE - локальная переменная (обратите внимание, что аннотация не может быть прочитана во время выполнения
+программы, то есть, данный тип аннотации может использоваться только на уровне компиляции как, например,
+аннотация @SuppressWarnings):
+
+
+public void method() {
+    @Annotation int a = 0;
+}
+
+ANNOTATION_TYPE - другая аннотация:
+
+
+@Annotation
+public @interface AnotherAnnotation {..}

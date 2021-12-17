@@ -1,0 +1,61 @@
+В этой статье речь пойдет о четвертой (последней) стандартной аннотации для других аннотаций, а именно, об
+аннотации @Inherited. Как следует из названия, эта анотация означает, что она автоматически наследуется в дочерних
+классах описанного аннотацией класса.
+
+Сложный для понимания текст легко можно упростить с помощью следующего примера.
+
+Допустим, у нас есть аннотация @Mammal (млекопитающее):
+
+
+package com.seostella.annotation.def;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.lang.annotation.ElementType;
+
+@Target(ElementType.TYPE)
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Inherited
+public @interface Mammal {
+	String sound();
+
+	int color();
+}
+
+@Mammal помечена аннотацией @Inherited. Теперь воспользуемся этой аннотацией в классе Giraffe:
+
+
+package com.seostella.annotation.domain;
+
+import com.seostella.annotation.def.HasHorn;
+import com.seostella.annotation.def.Mammal;
+
+@Mammal(color = 0xFFA844, sound = "uuuu")
+public class Giraffe {
+
+	@HasHorn
+	public void drawHead() {
+	}
+
+}
+
+Создадим класс, унаследованный от Giraffe:
+
+
+package com.seostella.annotation.domain;
+
+public class FeatureGiraffe extends Giraffe{
+
+}
+
+Теперь класс FeatureGiraffe содержит аннотацию @Mammal класса Giraffe, то есть, следующую аннотацию:
+
+
+@Mammal(color = 0xFFA844, sound = "uuuu")
+
+
+Это происходит благодаря аннотации @Inherited.

@@ -1,0 +1,39 @@
+По умолчанию информация о аннотации не добавляется в документацию JavaDoc. Аннотация @Documented используется при
+объявлении другой аннотации чтобы указать, что данная аннотация будет указана в сгенерированной документации JavaDoc.
+
+Допустим, что имеется аннотация @Mammal, объявленная с аннотацией @Documented:
+
+
+package com.seostella.annotation.def;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.lang.annotation.ElementType;
+
+@Target(ElementType.TYPE)
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Mammal {
+	String sound();
+
+	int color();
+}
+
+В следующем примере к классу Giraffe добавится полная информация об аннотации @Mammal в JavaDoc:
+
+
+package com.seostella.annotation.domain;
+
+import com.seostella.annotation.def.HasHorn;
+import com.seostella.annotation.def.Mammal;
+
+@Mammal(color = 0xFFA844, sound = "uuuu")
+public class Giraffe {
+
+	@HasHorn
+	public void drawHead() {
+	}
+
+}

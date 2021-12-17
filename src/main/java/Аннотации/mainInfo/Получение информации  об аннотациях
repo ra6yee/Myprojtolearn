@@ -1,0 +1,141 @@
+Мало добавить аннотацию к классу, необходимо иметь способ получить информацию о ней: что описывает аннотация (класс,
+метод, параметр и т.д,), какими свойствами обладает и другие характеристики. В этой статье речь пойдет именно об этой
+информации.
+
+Как упоминалось в предыдущих статьях, аннотация имеет три области видимости, описываемые аннотацией @Retention:
+
+SOURCE - аннотация доступна только в исходном коде и сбрасывается во время создания .class файла;
+CLASS - аннотация хранится в .class файле, но недоступна во время выполнения программы;
+RUNTIME - аннотация хранится в .class файле и доступна во время выполнения программы.
+Для того чтобы получить информацию об аннотации первого типа необходимо разобрать исходный код программы. Способов это
+сделать существует огромное количество, но рассмотрение их выходит за пределы данной статьи.
+
+При использовании аннотации @Retention с типом CLASS необходимо проделать похожие действия, но разобрать не исходный код
+ программы, а скомпилированный .class файл. Описание способа как это сделать также выходит границы этой статьи.
+
+И, наконец, аннотация с последним типом RUNTIME аннотации @Retention. Чтобы получить информацию об аннотациях класса
+необходимо воспользоваться рефлексией. Перейдем к примеру.
+
+Создадим следующие две аннотации: @Mammal (млекопитающее) и @HasHorn (наличие рога):
+
+
+package com.seostella.annotation.def;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.lang.annotation.ElementType;
+
+@Target(ElementType.TYPE)
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Inherited
+public @interface Mammal {
+	String sound();
+
+	int color();
+}
+
+
+package com.seostella.annotation.def;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.lang.annotation.ElementType;
+
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface HasHorn {
+	int length() default 30;
+}
+
+Напомним значение упомянутых в примере аннотаций:
+
+@Target(ElementType.TYPE) - аннотация может использоваться только с классом, интерфейсом, перечислением enum или с
+другой аннотацией.
+
+@Documented - указываем, что данная аннотация будет указана в сгенерированной документации JavaDoc.
+
+@Retention(RetentionPolicy.RUNTIME) - аннотация хранится в .class файле и доступна во время выполнения программы.
+
+@Inherited - аннотация автоматически наследуется в дочерних классах описанного аннотацией класса.
+
+@Target(ElementType.METHOD) - аннотация может использоваться только с методом класса.
+
+Создадим класс Giraffe, который использует обе аннотации:
+
+
+package com.seostella.annotation.domain;
+
+import com.seostella.annotation.def.HasHorn;
+import com.seostella.annotation.def.Mammal;
+
+@Mammal(color = 0xFFA844, sound = "uuuu")
+public class Giraffe {
+
+	@HasHorn
+	public void drawHead() {
+	}
+
+}
+
+Также, чтобы продемонстрировать работу аннотации @Inherited, создадим класс FeatureGiraffe:
+
+
+package com.seostella.annotation.domain;
+
+public class FeatureGiraffe extends Giraffe{
+
+}
+
+Теперь приступим к непосредственному разбору аннотаций. Создайте, например, класс со следующим содержанием:
+
+
+package com.seostella.annotation;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+
+import com.seostella.annotation.domain.FeatureGiraffe;
+
+public class Main {
+	public static void main(String[] args) {
+		try {
+
+			FeatureGiraffe giraffe = new FeatureGiraffe();
+			Annotation[] classAnnotations = giraffe.getClass().getAnnotations();
+
+			System.out.println( giraffe.getClass().getName() + " annotations:");
+			for (Annotation annotation : classAnnotations)
+				System.out.println( "  " + annotation);
+
+			Method[] classMethods = giraffe.getClass().getMethods();
+			System.out.println(" Method annotations:");
+			for( Method method : classMethods ){
+				Annotation[] methodAnnotations = method.getAnnotations();
+				if( methodAnnotations.length > 0 ){
+					System.out.println("  " + method.getName() + "():");
+				}
+				for( Annotation annotation : methodAnnotations ){
+					System.out.println( "    " + annotation);
+				}
+			}
+
+		} catch (Exception exc) {
+		}
+	}
+}
+
+Результатом выполнения программы будут следующие строки:
+
+
+com.seostella.annotation.domain.FeatureGiraffe annotations:
+  @com.seostella.annotation.def.Mammal(color=16754756, sound=uuuu)
+ Method annotations:
+  drawHead():
+    @com.seostella.annotation.def.HasHorn(length=30)
+
+Как видно из примера, хоть в классе FeatureGiraffe и не объявлены аннотации, они наследуются из родительского класса Giraffe.
